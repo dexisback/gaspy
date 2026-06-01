@@ -25,11 +25,30 @@ export async function POST(request: Request) {
     const chunks = await findSimilarChunks(
       embedding
     );
+    const relevantChunks = chunks.filter(
+  (chunk) => chunk.distance < 0.5
+);
+
+//debug for noting down the vector differences, tune threshold later⚠️⚠️⚠️
+// console.log(
+//   relevantChunks.map((c) => ({
+//     distance: c.distance,
+//     content: c.content.slice(0, 100),
+//   }))
+// );
+console.log(chunks)
 
     const qaPairs =
       await findRelevantQAPairs();
-
-    const context = chunks
+if (
+  relevantChunks.length === 0 
+) {
+  return NextResponse.json({
+    answer:
+      "I don't have enough information to answer that.",
+  });
+}
+    const context = relevantChunks
       .map((chunk) => chunk.content)
       .join("\n\n");
 
