@@ -8,6 +8,7 @@ type SimilarChunk = {
   id: string;
   content: string;
   documentId: string;
+  distance: number
 };
 
 type RelevantQAPair = {
@@ -43,7 +44,8 @@ export async function findSimilarChunks(
     SELECT
       id,
       content,
-      "documentId"
+      "documentId",
+      embedding <=> ${vector}::vector as distance
     FROM "Chunk"
     ORDER BY embedding <=> ${vector}::vector
     LIMIT ${limit}
@@ -54,7 +56,7 @@ export async function findSimilarChunks(
 
 
 export async function findRelevantQAPairs(
-  question: string,
+//   question: string // for future semantic search
   limit = 5
 ): Promise<RelevantQAPair[]> {
   const qaPairs = await prisma.qAPair.findMany({
