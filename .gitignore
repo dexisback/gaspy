@@ -46,3 +46,7 @@ next-env.d.ts
 .agents/*
 .agents/skills/*
 skills-lock.json 
+
+
+
+tmp/*
