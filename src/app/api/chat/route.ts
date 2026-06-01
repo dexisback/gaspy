@@ -22,41 +22,32 @@ export async function POST(request: Request) {
 
     const embedding = await createEmbedding(message);
 
-    const chunks = await findSimilarChunks(
-      embedding
-    );
+    const chunks = await findSimilarChunks(embedding);
     const relevantChunks = chunks.filter(
-  (chunk) => chunk.distance < 0.5
-);
+      (chunk) => chunk.distance < 0.5
+    );
 
-//debug for noting down the vector differences, tune threshold later⚠️⚠️⚠️
-// console.log(
-//   relevantChunks.map((c) => ({
-//     distance: c.distance,
-//     content: c.content.slice(0, 100),
-//   }))
-// );
-console.log(chunks)
+    const qaPairs = await findRelevantQAPairs();
 
-    const qaPairs =
-      await findRelevantQAPairs();
-if (
-  relevantChunks.length === 0 
-) {
-  return NextResponse.json({
-    answer:
-      "I don't have enough information to answer that.",
-  });
-}
+    if (relevantChunks.length === 0) {
+      // Log the question even when no context is found
+      prisma.questionLog
+        .create({
+          data: { question: message, hasContext: false },
+        })
+        .catch(() => {});
+
+      return NextResponse.json({
+        answer: "I don't have enough information to answer that.",
+      });
+    }
+
     const context = relevantChunks
       .map((chunk) => chunk.content)
       .join("\n\n");
 
     const qaContext = qaPairs
-      .map(
-        (qa) =>
-          `Q: ${qa.question}\nA: ${qa.answer}`
-      )
+      .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
       .join("\n\n");
 
     const prompt = `
@@ -76,25 +67,35 @@ ${qaContext}
 USER QUESTION:
 ${message}
 `;
-console.log("Chunks:", chunks.length);
-console.log("QA Pairs:", qaPairs.length);
-console.log("Prompt Length:", prompt.length);
-        const response =
-      await gemini.models.generateContent({
-        model: "gemini-flash-latest",
-        contents: prompt,
-      });    
- 
 
-    await prisma.questionLog.create({
-      data: {
-        question: message,
-        hasContext: chunks.length > 0,
+    const result = await gemini.models.generateContentStream({
+      model: "gemini-flash-latest",
+      contents: prompt,
+    });
+
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of result) {
+          const text = chunk.text ?? "";
+          controller.enqueue(encoder.encode(text));
+        }
+        controller.close();
       },
     });
 
-    return NextResponse.json({
-      answer: response.text,
+    // Fire-and-forget: log the question after starting the stream
+    prisma.questionLog
+      .create({
+        data: { question: message, hasContext: chunks.length > 0 },
+      })
+      .catch(() => {});
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
     });
   } catch (error) {
     console.error(error);
@@ -105,5 +106,3 @@ console.log("Prompt Length:", prompt.length);
     );
   }
 }
-
-
