@@ -12,3 +12,36 @@ datasource db {
   provider = "postgresql"
 }
 
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  type       String
+  size       Int
+  createdAt  DateTime @default(now())
+  chunks     Chunk[]
+}
+
+model Chunk {
+  id         String                 @id @default(cuid())
+  content    String
+  embedding  Unsupported("vector(1536)")?
+  documentId String
+  document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime               @default(now())
+}
+
+model QAPair {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuestionLog {
+  id             String   @id @default(cuid())
+  question       String
+  hasContext     Boolean
+  createdAt      DateTime @default(now())
+}
