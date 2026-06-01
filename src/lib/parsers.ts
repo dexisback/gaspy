@@ -1,17 +1,13 @@
+import pdf from "pdf-parse-new";
 import mammoth from "mammoth";
 
 export async function extractText(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   if (file.type === "application/pdf") {
-    // `pdf-parse` is a Node-only CJS package. Import it dynamically at runtime
-    // so bundlers don't try to include it in client bundles.
-    const mod: any = await import("pdf-parse").catch((e) => {
-      throw new Error("Failed to load pdf-parse: " + String(e));
-    });
-    const pdf = mod.default ?? mod;
-    const result = await pdf(buffer as any);
-    return result.text as string;
+    const result = await pdf(buffer);
+
+    return result.text;
   }
 
   if (
@@ -27,5 +23,3 @@ export async function extractText(file: File): Promise<string> {
 
   throw new Error("Unsupported file type");
 }
-
-

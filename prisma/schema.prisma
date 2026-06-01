@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,23 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model Document {
-  id         String   @id @default(cuid())
-  name       String
-  type       String
-  size       Int
-  createdAt  DateTime @default(now())
-  chunks     Chunk[]
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  size      Int
+  createdAt DateTime @default(now())
+  chunks    Chunk[]
 }
 
 model Chunk {
   id         String                 @id @default(cuid())
   content    String
-  embedding  Unsupported("vector(1536)")?
+  embedding  Unsupported("vector")?
   documentId String
-  document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
   createdAt  DateTime               @default(now())
+  document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model QAPair {
@@ -40,8 +34,8 @@ model QAPair {
 }
 
 model QuestionLog {
-  id             String   @id @default(cuid())
-  question       String
-  hasContext     Boolean
-  createdAt      DateTime @default(now())
+  id         String   @id @default(cuid())
+  question   String
+  hasContext Boolean
+  createdAt  DateTime @default(now())
 }

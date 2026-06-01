@@ -1,13 +1,14 @@
-import { openai } from "@/lib/openai";
+import { gemini } from "@/lib/gemini";
 
 export async function createEmbedding(text: string) {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
+  const response = await gemini.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
   });
 
-    return response.data[0].embedding;
 
-    
-
+//   return response.embeddings?.[0]?.values ?? [], 
+const embedding = response.embeddings?.[0]?.values ?? [];
+console.log("Embedding length:", embedding.length);
+return embedding 
 }
