@@ -17,7 +17,12 @@ type RelevantQAPair = {
   answer: string;
 };
 
-
+type SimilarQAPair = {
+  id: string;
+  question: string;
+  answer: string;
+  distance: number;
+};
 
 export async function createEmbedding(text: string) {
   const response = await gemini.models.embedContent({
@@ -54,18 +59,28 @@ export async function findSimilarChunks(
   return chunks;
 }
 
+export async function findSimilarQAPairs(
+  embedding: number[],
+  limit = 3
+): Promise<SimilarQAPair[]> {
+  const vector =
+    `[${embedding.join(",")}]`;
 
-export async function findRelevantQAPairs(
-//   question: string // for future semantic search
-  limit = 5
-): Promise<RelevantQAPair[]> {
-  const qaPairs = await prisma.qAPair.findMany({
-    take: limit,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const qaPairs =
+    await prisma.$queryRaw<
+      SimilarQAPair[]
+    >`
+      SELECT
+        id,
+        question,
+        answer,
+        "questionEmbedding" <=> ${vector}::vector
+        AS distance
+      FROM "QAPair"
+      ORDER BY
+        "questionEmbedding" <=> ${vector}::vector
+      LIMIT ${limit}
+    `;
 
   return qaPairs;
 }
-

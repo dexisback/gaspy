@@ -1,3 +1,6 @@
+-- Enable pgvector for embedding columns
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- CreateTable
 CREATE TABLE "Document" (
     "id" TEXT NOT NULL,

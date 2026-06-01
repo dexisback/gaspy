@@ -29,6 +29,7 @@ model QAPair {
   id        String   @id @default(cuid())
   question  String
   answer    String
+  questionEmbedding Unsupported("vector(3072)")?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -38,4 +39,12 @@ model QuestionLog {
   question   String
   hasContext Boolean
   createdAt  DateTime @default(now())
+}
+
+
+model Message {
+  id        String   @id @default(cuid())
+  role      String
+  content   String
+  createdAt DateTime @default(now())
 }

@@ -6,12 +6,18 @@ import { prisma } from "@/lib/prisma";
 import {
   createEmbedding,
   findSimilarChunks,
-  findRelevantQAPairs,
+  findSimilarQAPairs,
 } from "@/lib/embeddings";
 
 export async function POST(request: Request) {
   try {
     const { message } = await request.json();
+    await prisma.message.create({
+  data: {
+    role: "user",
+    content: message,
+  },
+});
 
     if (!message?.trim()) {
       return NextResponse.json(
@@ -27,7 +33,11 @@ export async function POST(request: Request) {
       (chunk) => chunk.distance < 0.5
     );
 
-    const qaPairs = await findRelevantQAPairs();
+    const qaPairs = await findSimilarQAPairs(embedding);
+    const relevantQAPairs =
+  qaPairs.filter(
+    (qa) => qa.distance < 0.5
+  );
 
     if (relevantChunks.length === 0) {
       // Log the question even when no context is found
@@ -46,7 +56,7 @@ export async function POST(request: Request) {
       .map((chunk) => chunk.content)
       .join("\n\n");
 
-    const qaContext = qaPairs
+    const qaContext = relevantQAPairs
       .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
       .join("\n\n");
 
@@ -75,15 +85,45 @@ ${message}
 
     const encoder = new TextEncoder();
 
+    // const stream = new ReadableStream({
+    //   async start(controller) {
+    //     for await (const chunk of result) {
+    //       const text = chunk.text ?? "";
+    //       controller.enqueue(encoder.encode(text));
+    //     }
+    //     controller.close();
+    //   },
+    // });
+
     const stream = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of result) {
-          const text = chunk.text ?? "";
-          controller.enqueue(encoder.encode(text));
-        }
-        controller.close();
-      },
-    });
+  async start(controller) {
+    let fullAnswer = "";
+
+    try {
+      for await (const chunk of result) {
+        const text = chunk.text ?? "";
+
+        fullAnswer += text;
+
+        controller.enqueue(
+          encoder.encode(text)
+        );
+      }
+
+      await prisma.message.create({
+        data: {
+          role: "assistant",
+          content: fullAnswer,
+        },
+      });
+
+      controller.close();
+    } catch (error) {
+      console.error(error);
+      controller.error(error);
+    }
+  },
+});
 
     // Fire-and-forget: log the question after starting the stream
     prisma.questionLog

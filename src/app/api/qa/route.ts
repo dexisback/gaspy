@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
+import { createEmbedding } from "@/lib/embeddings";
+import { createId } from "@paralleldrive/cuid2";
 export async function GET() {
   try {
     const qaPairs = await prisma.qAPair.findMany({
@@ -19,7 +20,6 @@ export async function GET() {
     );
   }
 }
-
 export async function POST(request: Request) {
   try {
     const { question, answer } =
@@ -38,12 +38,35 @@ export async function POST(request: Request) {
       );
     }
 
+    const embedding =
+      await createEmbedding(question);
+
+    const id = createId();
+
+    await prisma.$executeRaw`
+      INSERT INTO "QAPair"
+      (
+        id,
+        question,
+        answer,
+        "questionEmbedding",
+        "createdAt",
+        "updatedAt"
+      )
+      VALUES
+      (
+        ${id},
+        ${question},
+        ${answer},
+        ${`[${embedding.join(",")}]`}::vector,
+        NOW(),
+        NOW()
+      )
+    `;
+
     const qaPair =
-      await prisma.qAPair.create({
-        data: {
-          question,
-          answer,
-        },
+      await prisma.qAPair.findUnique({
+        where: { id },
       });
 
     return NextResponse.json(qaPair);
