@@ -23,7 +23,7 @@ export default function AdminPage() {
         <TopBar />
 
         {/* Ambient glow */}
-        <div className="pointer-events-none fixed bottom-0 left-1/2 z-0 -translate-x-1/2 opacity-25 dark:opacity-12">
+        <div className="pointer-events-none fixed bottom-0 left-1/2 z-0 -translate-x-1/2 opacity-25 dark:opacity-20">
           <div
             className="rounded-full blur-[140px]"
             style={{
@@ -42,7 +42,7 @@ export default function AdminPage() {
               {/* Chart — tall */}
               <PanelSurface className="flex flex-col p-6" delay={0.05}>
                 <div className="mb-5 flex items-center justify-between shrink-0">
-                  <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F2937]">
+                  <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-foreground text-balance">
                     Questions Over Time
                   </h3>
                   <span className="font-mono text-[10px] font-medium text-muted-foreground/70 font-tabular">
@@ -58,7 +58,7 @@ export default function AdminPage() {
 
               {/* Top Questions — compact */}
               <PanelSurface className="flex flex-col p-6" delay={0.1}>
-                <h3 className="mb-4 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F2937] shrink-0">
+                <h3 className="mb-4 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-foreground text-balance shrink-0">
                   Top Questions
                 </h3>
                 <div className="min-h-[120px]">
@@ -80,7 +80,7 @@ export default function AdminPage() {
 
               {/* Documents — thin pill strip */}
               <PanelSurface className="flex flex-col p-5" delay={0.2}>
-                <h3 className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F2937] shrink-0">
+                <h3 className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-foreground text-balance shrink-0">
                   Documents
                 </h3>
                 <Suspense fallback={<UploaderSkeleton />}>

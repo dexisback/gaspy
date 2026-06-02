@@ -151,12 +151,12 @@ export function QAManager({ initialData }: QAManagerProps) {
               visible: { opacity: 1, y: 0 },
             }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className={`relative flex min-h-[4.5rem] items-start gap-2 rounded-xl border border-border/40 bg-background/70 px-3 py-3 ${
+            className={`relative flex min-h-[4.5rem] items-start gap-2 rounded-xl border border-border/40 bg-muted/30 px-3 py-3 ${
               savingRowId === qa.id ? "opacity-60 pointer-events-none" : ""
             }`}
           >
             <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <p className="text-[13px] font-semibold text-[#1c1917] truncate">
+              <p className="text-[13px] font-semibold text-foreground truncate">
                 {qa.question}
               </p>
               <p className="text-[11px] leading-relaxed text-muted-foreground line-clamp-2">
@@ -236,7 +236,7 @@ export function QAManager({ initialData }: QAManagerProps) {
               className="relative z-10 w-full max-w-md rounded-xl border border-border/60 bg-card p-5 shadow-[0_1px_2px_rgba(17,24,39,0.06),0_18px_40px_rgba(17,24,39,0.12)]"
             >
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-[14px] font-bold text-[#1c1917]">
+                <h2 className="text-[14px] font-bold text-foreground">
                   {editingId ? "Edit Q&A Pair" : "Add Q&A Pair"}
                 </h2>
                 <motion.button
@@ -258,7 +258,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="Enter question"
-                    className="w-full rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-[#1c1917] outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
+                    className="w-full rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
                   />
                 </label>
                 <label className="block">
@@ -270,7 +270,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     onChange={(e) => setAnswer(e.target.value)}
                     rows={4}
                     placeholder="Enter answer"
-                    className="w-full resize-none rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-[#1c1917] outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
+                    className="w-full resize-none rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
                   />
                 </label>
                 <div className="flex justify-end gap-2 pt-1">
@@ -279,7 +279,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     whileTap={{ scale: 0.96 }}
                     onClick={closeModal}
                     disabled={saving}
-                    className="rounded-[6px] border border-border/70 bg-background px-3 py-1.5 text-[11px] font-semibold text-[#1c1917] hover:bg-muted/40 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-[6px] border border-border/70 bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground hover:bg-muted/40 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Cancel
                   </motion.button>

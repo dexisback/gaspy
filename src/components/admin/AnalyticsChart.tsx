@@ -43,7 +43,7 @@ export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
 
   return (
     <div className="h-full w-full min-h-0 min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
         <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: -4 }}>
           <defs>
             <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
@@ -77,6 +77,7 @@ export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
           <Tooltip
             content={<CustomTooltip />}
             cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+            isAnimationActive={false}
           />
           <Area
             type="monotone"

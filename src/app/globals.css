@@ -39,21 +39,21 @@
   }
 
   .dark {
-    --background: #141210;
-    --foreground: #f5f5f4;
-    --card: #1a1714;
-    --card-foreground: #f5f5f4;
-    --muted: #24211e;
-    --muted-foreground: #a8a29e;
+    --background: #0c0b0a;
+    --foreground: #f0efee;
+    --card: #1c1a18;
+    --card-foreground: #f0efee;
+    --muted: #282522;
+    --muted-foreground: #9c9894;
     --accent: #C5F80A;
     --accent-foreground: #171717;
-    --border: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.10);
     --ring: #C5F80A;
-    --popover: rgba(26, 23, 20, 0.98);
-    --popover-foreground: #f5f5f4;
+    --popover: rgba(28, 26, 24, 0.98);
+    --popover-foreground: #f0efee;
 
-    --panel-texture-bg: #1a1714;
-    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
+    --panel-texture-bg: #1c1a18;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
   }
 
   /* Visible dual-layer dot grid on body */
@@ -69,12 +69,13 @@
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
   }
 
   .dark body {
     background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.14) 1.2px, transparent 1.2px),
-      radial-gradient(circle, rgba(197, 248, 10, 0.22) 1.5px, transparent 1.5px);
+      radial-gradient(circle, rgba(255, 255, 255, 0.22) 1.2px, transparent 1.2px),
+      radial-gradient(circle, rgba(197, 248, 10, 0.35) 1.5px, transparent 1.5px);
     background-size: 20px 20px, 80px 80px;
     background-position: 0 0, 14px 24px;
   }
@@ -147,7 +148,7 @@
 
   .dark .app-surface {
     background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
       var(--panel-texture-image);
   }
 
