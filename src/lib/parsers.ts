@@ -6,7 +6,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   const base64 = buffer.toString("base64");
 
   const result = await gemini.models.generateContent({
-    model: "gemini-1.5-flash",
+    model: "gemini-flash-latest",
     contents: [
       {
         text: "Extract all the readable text from this PDF document. Return only the text content, preserving paragraph structure where possible.",
