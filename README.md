@@ -4,7 +4,7 @@ A conversational customer support chatbot backed by retrieval-augmented generati
 
 ---
 
-## What It Does:
+## What It Does
 
 **For end users:**
 Open the chat widget, ask a question. The bot retrieves relevant passages from uploaded documents and predefined Q&A pairs, then grounds its answer in that context using Google's Gemini model. No hallucinated claims — every answer is tied to actual source material.
@@ -16,6 +16,8 @@ A dashboard at `/admin` provides:
 - **Analytics** — see top asked questions and hourly question volume over the last 12 hours.
 - **Dark mode toggle** — full theme support with distinct warm color tokens.
 
+> Admin access requires a secret key: `/admin?key=YOUR_SECRET`
+
 ---
 
 ## Architecture
@@ -25,7 +27,7 @@ A dashboard at `/admin` provides:
 ```mermaid
 flowchart TD
     A[Admin Dashboard] -->|Upload Document| B[POST /api/documents/upload]
-    B --> C[Text Extraction<br/>pdf-parse-new / mammoth / xlsx]
+    B --> C[Text Extraction<br/>pdf2json / mammoth / xlsx]
     C --> D[Chunking<br/>2000 chars / 200 overlap]
     D --> E[Parallel Embedding<br/>gemini-embedding-001]
     E --> F[Prisma $executeRaw]
@@ -40,13 +42,12 @@ flowchart TD
     A --> B[Create Embedding<br/>gemini-embedding-001]
     B --> C[Vector Search<br/>Prisma $queryRaw]
     C --> D[(Neon PostgreSQL<br/>ORDER BY embedding <=> query_vector)]
-    D --> E[Similar Chunks]
-    D --> F[Similar Q&A Pairs]
-    E --> G[Similarity Filtering<br/>distance < SIMILARITY_THRESHOLD]
+    D --> E[Top-5 Similar Chunks]
+    D --> F[Top-3 Similar Q&A Pairs]
+    E --> G[Prompt Construction<br/>context + user question]
     F --> G
-    G --> H[Prompt Construction<br/>context + user question]
-    H --> I[Gemini Flash<br/>generateContentStream]
-    I --> J[Streaming Response<br/>text/plain]
+    G --> H[Gemini Flash<br/>generateContentStream]
+    H --> I[Streaming Response<br/>text/plain]
 ```
 
 ---
@@ -71,22 +72,23 @@ flowchart TD
 ## How the RAG Pipeline Works
 
 1. **Ingestion**
-    - Document → `extractText()` (Gemini PDF reading / mammoth / xlsx) → raw text
+   - Document → `extractText()` (pdf2json / mammoth / xlsx) → raw text
    - `chunkText()` splits into 2000-char chunks with 200-char overlap
    - Each chunk is embedded via `gemini-embedding-001` and stored in the `Chunk` table with a `vector` column
 
 2. **Q&A Pairs**
-   - When a pair is created or updated, its question is embedded and stored in `QAPair.questionEmbedding`
+   - When a pair is created, its question is embedded and stored in `QAPair.questionEmbedding`
    - Embeddings are generated fire-and-forget so the UI stays fast
 
 3. **Retrieval**
    - User message is embedded
    - `findSimilarChunks()` and `findSimilarQAPairs()` run pgvector `<=>` (cosine distance) queries
-   - Results are filtered by `SIMILARITY_THRESHOLD` (configurable via env, default 0.5)
+   - Top-5 chunks and top-3 Q&A pairs are retrieved (no strict threshold — pgvector ranking handles relevance)
 
 4. **Generation**
    - Retrieved context is injected into the prompt
-   - Gemini Flash streams the response back as `text/plain`
+   - Gemini Flash (`gemini-flash-latest`) streams the response back as `text/plain`
+   - Falls back to `gemini-2.5-flash` if the primary model is unavailable
    - Greetings bypass the LLM entirely — fast path with pre-written responses
 
 ---
@@ -118,6 +120,7 @@ src/
     admin-data.ts            # Dashboard data fetching
     utils.ts                 # formatHourLabel, formatBytes
   types/index.ts             # Shared TypeScript interfaces
+  proxy.ts                   # Admin route protection middleware
 prisma/
   schema.prisma              # Document, Chunk, QAPair, QuestionLog, Message
 ```
@@ -132,7 +135,7 @@ npm install
 
 # 2. Set up environment variables
 cp .env.example .env
-# Fill in DATABASE_URL, GEMINI_API_KEY, SIMILARITY_THRESHOLD
+# Fill in DATABASE_URL, GEMINI_API_KEY, ADMIN_SECRET
 
 # 3. Push the Prisma schema to your database
 npx prisma migrate dev --name init
@@ -149,10 +152,9 @@ The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin d
 
 | Variable | Purpose |
 |----------|---------|
-| `DATABASE_URL` | PostgreSQL connection string ( Neon with pgvector ) |
+| `DATABASE_URL` | PostgreSQL connection string (Neon with pgvector) |
 | `GEMINI_API_KEY` | Google GenAI API key |
-| `SIMILARITY_THRESHOLD` | Vector distance cutoff for retrieval (default: 0.5) |
-| `ADMIN_SECRET` | Secret key to access the admin dashboard (default: `CHANGE_ME_ADMIN_SECRET`) |
+| `ADMIN_SECRET` | Secret key to access the admin dashboard (**required**) |
 
 ## Cost & Free Tier
 
@@ -168,57 +170,20 @@ An in-memory rate limiter enforces these caps automatically. If you hit the dail
 
 ## Key Design Decisions
 
-**Streaming responses**  
+**Streaming responses**
 The chat API always returns `text/plain` via `ReadableStream`, whether the answer comes from a greeting fast-path, a no-context fallback, or a live Gemini stream. The client handles one format only.
 
-**Fire-and-forget embeddings**  
+**Fire-and-forget embeddings**
 Q&A pairs are inserted immediately so the UI feels instant. The embedding is generated in a background async block. If it fails, the pair still exists — the admin can see it, and the next query will simply skip it in vector search.
 
-**Parallel chunk embedding**  
+**Parallel chunk embedding**
 Document uploads batch all chunk embeddings with `Promise.all` instead of sequential `await`, cutting upload time for large files significantly.
 
-**Server-side data fetching with React `cache()`**  
-Dashboard data is fetched inside async server components (`DashboardData.tsx`) using `cache()` so multiple panels sharing the same dataset don't duplicate DB queries.
+**Server-side data fetching with React `cache()`**
+Dashboard data is fetched inside async server components using `cache()` so multiple panels sharing the same dataset don't duplicate DB queries.
 
-**Revalidation on mutations**  
-All document and Q&A mutations call `revalidatePath('/admin')`, keeping React's server cache in sync with actual DB state.
-
----
-
-## Production Roadmap
-
-If this were deployed to production, the next priorities would be:
-
-### 1. Authentication
-The admin dashboard is currently unprotected. A production deployment needs at minimum a password gate; ideally OAuth (NextAuth or Clerk) with role-based access so support managers can edit Q&A but not delete documents.
-
-### 2. Rate Limiting
-Already implemented with an in-memory limiter: 60 requests per minute, 1500 per day. This aligns with the Google GenAI free tier and prevents accidental or malicious overuse. For production, switch to `@upstash/ratelimit` or Redis-backed per-IP limits so the counter survives serverless cold starts.
-
-### 3. Model Upgrades & Fallbacks
-Gemini Flash is fast and cheap, but for high-stakes answers (e.g., legal or medical contexts), a fallback to Gemini Pro or even a self-hosted model makes sense. The model string is already centralized in `lib/gemini.ts` — swapping it is trivial.
-
-### 4. Chatbot Testing Suite
-Every change to the prompt or similarity threshold can shift answer quality. A proper test suite would:
-- Maintain a labeled dataset of 50–100 real user questions with expected answers
-- Run each through the pipeline programmatically
-- Score retrieval precision/recall and generation faithfulness
-- Tune `SIMILARITY_THRESHOLD` against that dataset rather than guessing
-
-### 5. Threshold Tuning at Scale
-The current `0.5` cutoff is a starting point. In production, you would:
-- Log every query with its top-k distances
-- A/B test different thresholds against user feedback (thumbs up/down)
-- Possibly make the threshold dynamic per query type
-
-### 6. Observability
-Add structured logging and trace IDs through the RAG pipeline so you can answer: "For this user's question, what chunks were retrieved? What was the prompt? What did the model return?" Tools like LangSmith or a simple SQLite audit log would work.
-
-### 7. Semantic Caching
-Currently every query hits the embedding API and then the LLM, even if someone asks the same question twice. A semantic cache would store recent `(embedding, response)` pairs in Redis or Postgres, run a fast vector similarity check before the full pipeline, and return the cached answer if the distance is below a tight threshold (e.g., 0.15). This cuts latency and API cost for repeated or rephrased questions.
-
-### 8. Multimodal RAG
-The parser groundwork is already there (PDF, DOCX, XLSX). The next step is image extraction from PDFs and table understanding from spreadsheets, feeding structured representations into the context window.
+**Admin protection**
+A middleware (`proxy.ts`) gates `/admin` and admin API routes. Access requires a secret key passed as a query param (`?key=...`) which sets an httpOnly cookie for subsequent requests. The secret is read from the `ADMIN_SECRET` environment variable — no hardcoded defaults.
 
 ---
 

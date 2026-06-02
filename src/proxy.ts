@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || "CHANGE_ME_ADMIN_SECRET";
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const COOKIE_NAME = "admin-auth";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 export default function proxy(request: NextRequest) {
+  if (!ADMIN_SECRET) {
+    console.error("ADMIN_SECRET env var is not set");
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+  }
+
   const { pathname, searchParams } = request.nextUrl;
 
-  // Protect admin page
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     const key = searchParams.get("key");
     const cookie = request.cookies.get(COOKIE_NAME);
