@@ -58,7 +58,16 @@ export async function POST(request: Request) {
       await prisma.message.create({
         data: { role: "assistant", content: response },
       });
-      return NextResponse.json({ answer: response });
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(response));
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
     }
 
     const embedding = await createEmbedding(message);
@@ -76,8 +85,16 @@ export async function POST(request: Request) {
         })
         .catch(() => {});
 
-      return NextResponse.json({
-        answer: "I don't have enough information to answer that.",
+      const fallback = "I don't have enough information to answer that.";
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(fallback));
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
 
@@ -145,6 +162,16 @@ ${message}
     });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Chat failed" }, { status: 500 });
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode("Something went wrong. Please try again."));
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      status: 200,
+    });
   }
 }
