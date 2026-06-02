@@ -14,7 +14,7 @@ export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <main className="relative flex h-screen flex-col bg-white">
+    <main className="relative flex h-screen flex-col overflow-hidden bg-white">
       <Navbar shrink={phoneHover} />
 
       <div className="relative flex flex-1 flex-col items-center pt-8 md:pt-10">
