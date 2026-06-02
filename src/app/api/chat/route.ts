@@ -100,7 +100,14 @@ export async function POST(request: Request) {
         })
         .catch(() => {});
 
-      const fallback = "I don't have enough information to answer that.";
+      const fallback =
+        "I'm not sure about that one — I don't have anything in my knowledge base that covers it yet.\n\n" +
+        "Here are a few things I can help with:\n" +
+        "• Questions about uploaded documents\n" +
+        "• How something works based on your docs\n" +
+        "• General product or support questions\n\n" +
+        "If you need more help, our support team is available at +1-555-0199.";
+
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         start(controller) {

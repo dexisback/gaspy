@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gaspy — AI Chatbot",
+  title: "Gaspy",
   description: "Your AI-powered chatbot for effortless support and scheduling",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
