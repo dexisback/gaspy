@@ -4,7 +4,7 @@ A conversational customer support chatbot backed by retrieval-augmented generati
 
 ---
 
-## What It Does
+## What It Does:
 
 **For end users:**
 Open the chat widget, ask a question. The bot retrieves relevant passages from uploaded documents and predefined Q&A pairs, then grounds its answer in that context using Google's Gemini model. No hallucinated claims — every answer is tied to actual source material.
