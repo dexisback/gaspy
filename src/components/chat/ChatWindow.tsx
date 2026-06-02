@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChatMessage } from "./ChatMessage";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
+import { TypingIndicator } from "./TypingIndicator";
 
 export type Message = {
   role: "user" | "assistant";
@@ -13,8 +15,7 @@ export function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content:
-        "Hello! I'm Gaspy. Ask me anything about your uploaded documents.",
+      content: "Hey there! I'm Gaspy. Ask me anything about your documents.",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,7 @@ export function ChatWindow() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   async function handleSend(message: string) {
     if (!message.trim() || isLoading) return;
@@ -81,21 +82,47 @@ export function ChatWindow() {
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <ChatMessage key={i} message={msg} />
-        ))}
+    <div className="flex h-full flex-col bg-white">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="space-y-3">
+          {messages.map((msg, i) => (
+            <MessageBubble key={i} message={msg} index={i} />
+          ))}
+
+          <AnimatePresence>
+            {isLoading && messages[messages.length - 1]?.content === "" && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="flex justify-start"
+              >
+                <div className="rounded-2xl rounded-bl-md bg-[#F2F4F5] px-4 py-2">
+                  <TypingIndicator />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-center"
+            >
+              <div className="rounded-full bg-red-50 px-4 py-1.5 text-xs text-red-600">
+                {error}
+              </div>
+            </motion.div>
+          )}
+        </div>
         <div ref={bottomRef} />
       </div>
 
-      {error && (
-        <div className="mx-4 mb-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
-          {error}
-        </div>
-      )}
-
-      <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+      {/* Input */}
+      <div className="border-t border-gray-100 px-4 py-3">
         <ChatInput onSend={handleSend} disabled={isLoading} />
       </div>
     </div>
