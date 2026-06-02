@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createEmbedding } from "@/lib/embeddings";
 import { createId } from "@paralleldrive/cuid2";
+
+const qaSchema = z.object({
+  question: z.string().min(1).max(1000),
+  answer: z.string().min(1).max(5000),
+});
 
 export async function GET() {
   try {
@@ -20,14 +26,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { question, answer } = await request.json();
-
-    if (!question?.trim() || !answer?.trim()) {
+    const body = await request.json();
+    const parsed = qaSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Question and answer are required" },
+        { error: "Invalid input", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
+    const { question, answer } = parsed.data;
 
     const id = createId();
 

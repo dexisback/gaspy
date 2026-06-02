@@ -1,13 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { formatHourLabel } from "@/lib/utils";
 import { Document, QAPair, AnalyticsResponse } from "@/types";
-
-function formatHourLabel(date: Date): string {
-  let hours = date.getHours();
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12;
-  hours = hours === 0 ? 12 : hours;
-  return `${hours}${ampm}`;
-}
 
 export async function getAnalytics(): Promise<AnalyticsResponse> {
   const logs = await prisma.questionLog.groupBy({

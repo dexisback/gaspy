@@ -1,14 +1,6 @@
-//shows most frequently asked questions + hourly timeline
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-function formatHourLabel(date: Date): string {
-  let hours = date.getHours();
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12;
-  hours = hours === 0 ? 12 : hours;
-  return `${hours}${ampm}`;
-}
+import { formatHourLabel } from "@/lib/utils";
 
 export async function GET() {
   try {

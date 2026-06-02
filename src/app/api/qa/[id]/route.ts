@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createEmbedding } from "@/lib/embeddings";
+
+const qaUpdateSchema = z.object({
+  question: z.string().min(1).max(1000),
+  answer: z.string().min(1).max(5000),
+});
 
 export async function PUT(
   request: Request,
@@ -8,14 +14,15 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const { question, answer } = await request.json();
-
-    if (!question?.trim() || !answer?.trim()) {
+    const body = await request.json();
+    const parsed = qaUpdateSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Question and answer are required" },
+        { error: "Invalid input", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
+    const { question, answer } = parsed.data;
 
     const existing = await prisma.qAPair.findUnique({ where: { id } });
     if (!existing) {

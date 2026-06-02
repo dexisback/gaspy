@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { gemini } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import {
@@ -6,6 +7,10 @@ import {
   findSimilarChunks,
   findSimilarQAPairs,
 } from "@/lib/embeddings";
+
+const chatSchema = z.object({
+  message: z.string().min(1).max(2000),
+});
 
 const GREETING_PATTERNS = [
   /^\s*hi\b/i,
@@ -40,17 +45,19 @@ function getGreetingResponse(): string {
 
 export async function POST(request: Request) {
   try {
-    const { message } = await request.json();
-    await prisma.message.create({
-      data: { role: "user", content: message },
-    });
-
-    if (!message?.trim()) {
+    const body = await request.json();
+    const parsed = chatSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Message is required" },
+        { error: "Invalid message", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
+    const { message } = parsed.data;
+
+    await prisma.message.create({
+      data: { role: "user", content: message },
+    });
 
     // Fast path: greetings — no embedding, no LLM call
     if (isGreeting(message)) {
