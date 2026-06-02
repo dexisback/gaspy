@@ -19,7 +19,7 @@ model Document {
 model Chunk {
   id         String                 @id @default(cuid())
   content    String
-  embedding  Unsupported("vector")?
+  embedding  Unsupported("vector(3072)")?
   documentId String
   createdAt  DateTime               @default(now())
   document   Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
