@@ -203,7 +203,10 @@ The current `0.5` cutoff is a starting point. In production, you would:
 ### 6. Observability
 Add structured logging and trace IDs through the RAG pipeline so you can answer: "For this user's question, what chunks were retrieved? What was the prompt? What did the model return?" Tools like LangSmith or a simple SQLite audit log would work.
 
-### 7. Multimodal RAG
+### 7. Semantic Caching
+Currently every query hits the embedding API and then the LLM, even if someone asks the same question twice. A semantic cache would store recent `(embedding, response)` pairs in Redis or Postgres, run a fast vector similarity check before the full pipeline, and return the cached answer if the distance is below a tight threshold (e.g., 0.15). This cuts latency and API cost for repeated or rephrased questions.
+
+### 8. Multimodal RAG
 The parser groundwork is already there (PDF, DOCX, XLSX). The next step is image extraction from PDFs and table understanding from spreadsheets, feeding structured representations into the context window.
 
 ---
