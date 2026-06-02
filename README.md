@@ -28,20 +28,20 @@ flowchart TD
     end
 
     subgraph Next.js
-        R1[App Router<br/>/(chat)/chat<br/>/(admin)/admin]
-        R2[API Routes<br/>/api/chat<br/>/api/documents<br/>/api/qa<br/>/api/analytics]
+        R1[App Router]
+        R2[API Routes]
     end
 
     subgraph Backend
-        G1[Google GenAI<br/>Gemini Flash + Embeddings]
-        E1[Vector Search<br/>pgvector on Neon Postgres]
+        G1[Google GenAI]
+        E1[Vector Search]
         E2[Prisma ORM]
     end
 
-    C1 -->|POST /api/chat| R2
-    C2 -->|CRUD /api/documents| R2
-    C2 -->|CRUD /api/qa| R2
-    C2 -->|GET /api/analytics| R2
+    C1 -->|POST api/chat| R2
+    C2 -->|CRUD api/documents| R2
+    C2 -->|CRUD api/qa| R2
+    C2 -->|GET api/analytics| R2
     R2 --> G1
     R2 --> E2
     E2 --> E1
