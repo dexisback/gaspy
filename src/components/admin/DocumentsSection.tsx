@@ -8,6 +8,7 @@ import { Document } from "@/types";
 export function DocumentsSection({ initialData }: { initialData: Document[] }) {
   const [documents, setDocuments] = useState<Document[]>(initialData);
   const [loading, setLoading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -23,8 +24,18 @@ export function DocumentsSection({ initialData }: { initialData: Document[] }) {
   }, []);
 
   return (
-    <>
-      <DocumentUploader onUploaded={refresh} />
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+      }}
+    >
+      <DocumentUploader onUploaded={refresh} dragOver={dragOver} />
       <div className="mt-4 overflow-y-auto max-h-[140px]">
         <DocumentList
           documents={documents}
@@ -32,6 +43,6 @@ export function DocumentsSection({ initialData }: { initialData: Document[] }) {
           loading={loading}
         />
       </div>
-    </>
+    </div>
   );
 }

@@ -1,12 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 
-export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
+interface DocumentUploaderProps {
+  onUploaded: () => void;
+  dragOver?: boolean;
+}
+
+export function DocumentUploader({ onUploaded, dragOver = false }: DocumentUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-  const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function uploadFile(file: File) {
@@ -39,26 +44,33 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
-    setDragOver(false);
     const file = e.dataTransfer.files[0];
     if (file) uploadFile(file);
   }
 
   return (
-    <div>
-      <div
-        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-200 ${
+    <div onDrop={handleDrop}>
+      <motion.button
+        animate={
           dragOver
-            ? "border-accent bg-accent/5"
-            : "border-border/40 hover:border-muted-foreground/30 hover:bg-muted/30"
-        }`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
+            ? {
+                rotate: [0, -1.5, 1.5, -1, 1, 0],
+                scale: 1.02,
+                borderColor: "rgba(197, 248, 10, 0.6)",
+              }
+            : { rotate: 0, scale: 1, borderColor: "rgba(0, 0, 0, 0.06)" }
+        }
+        transition={
+          dragOver
+            ? {
+                rotate: { repeat: Infinity, duration: 0.4, ease: "easeInOut" },
+                scale: { duration: 0.2 },
+                borderColor: { duration: 0.2 },
+              }
+            : { duration: 0.2 }
+        }
         onClick={() => inputRef.current?.click()}
+        className="app-btn-3d flex w-full items-center justify-center gap-2 rounded-full border border-border/50 bg-background px-4 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground cursor-pointer"
       >
         <input
           ref={inputRef}
@@ -67,16 +79,9 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
           className="hidden"
           onChange={handleFileChange}
         />
-        <Upload
-          className="mx-auto text-muted-foreground mb-2"
-          size={18}
-          strokeWidth={1.5}
-        />
-        <p className="text-[12px] text-muted-foreground font-medium">
-          {uploading ? "Uploading..." : "Drop a file or click to browse"}
-        </p>
-        <p className="mt-1 text-[10px] text-muted-foreground/50">PDF, DOCX, XLSX</p>
-      </div>
+        <Upload size={14} strokeWidth={1.5} className="opacity-80" />
+        {uploading ? "Uploading..." : dragOver ? "Drop to upload" : "Upload document"}
+      </motion.button>
       {error && <p className="mt-2 text-[11px] text-red-500">{error}</p>}
     </div>
   );

@@ -71,14 +71,14 @@ export function DocumentList({ documents, onDelete, loading }: DocumentListProps
         >
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <FileText
-              className="text-muted-foreground shrink-0"
+              className="text-muted-foreground shrink-0 opacity-55"
               size={14}
-              strokeWidth={1.5}
+              strokeWidth={1.6}
             />
-            <span className="text-[13px] text-foreground truncate">{doc.name}</span>
+            <span className="text-[13px] font-medium text-[#1c1917] truncate">{doc.name}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10.5px] text-muted-foreground font-tabular">
+            <span className="font-mono text-[10.5px] font-semibold text-muted-foreground/70 font-tabular">
               {formatBytes(doc.size)}
             </span>
             <motion.button

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Users,
 } from "lucide-react";
+import { Tooltip } from "./Tooltip";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard" },
@@ -27,21 +28,21 @@ export function Sidebar() {
 
       {/* Nav Items */}
       <nav className="flex flex-1 flex-col items-center gap-1">
-        {navItems.map((item, i) => (
-          <motion.button
-            key={item.label}
-            whileTap={{ scale: 0.92 }}
-            className="relative flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-            title={item.label}
-          >
-            <item.icon
-              className="shrink-0"
-              size={18}
-              strokeWidth={1.5}
-            />
-            {/* Active indicator */}
-            <div className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-accent opacity-0 hover:opacity-100 transition-opacity" />
-          </motion.button>
+        {navItems.map((item) => (
+          <Tooltip key={item.label} label={item.label}>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="relative flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+            >
+              <item.icon
+                className="shrink-0 opacity-55"
+                size={15}
+                strokeWidth={1.6}
+              />
+              {/* Active indicator */}
+              <div className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-accent opacity-0 hover:opacity-100 transition-opacity" />
+            </motion.button>
+          </Tooltip>
         ))}
       </nav>
 

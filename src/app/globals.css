@@ -20,47 +20,63 @@
 
 @layer base {
   :root {
-    --background: #FAFAF8;
-    --foreground: #1a1a1a;
-    --card: #FAFAF8;
-    --card-foreground: #1a1a1a;
-    --muted: #f2f1ef;
-    --muted-foreground: #8a8986;
+    --background: #ede4df;
+    --foreground: #1c1917;
+    --card: #f5ede8;
+    --card-foreground: #1c1917;
+    --muted: #e0d7d2;
+    --muted-foreground: #78716c;
     --accent: #C5F80A;
     --accent-foreground: #171717;
-    --border: rgba(0, 0, 0, 0.06);
+    --border: rgba(0, 0, 0, 0.08);
     --ring: #C5F80A;
-    --popover: rgba(255, 255, 255, 0.96);
-    --popover-foreground: #1a1a1a;
+    --popover: rgba(255, 250, 247, 0.98);
+    --popover-foreground: #1c1917;
 
-    /* Panel texture for surfaces */
-    --panel-texture-bg: #FAFAF8;
-    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    /* Stronger panel texture */
+    --panel-texture-bg: #f5ede8;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
   }
 
   .dark {
-    --background: #111110;
-    --foreground: #f0f0ef;
-    --card: #141413;
-    --card-foreground: #f0f0ef;
-    --muted: #1c1c1b;
-    --muted-foreground: #7a7a78;
+    --background: #141210;
+    --foreground: #f5f5f4;
+    --card: #1a1714;
+    --card-foreground: #f5f5f4;
+    --muted: #24211e;
+    --muted-foreground: #a8a29e;
     --accent: #C5F80A;
     --accent-foreground: #171717;
-    --border: rgba(255, 255, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.08);
     --ring: #C5F80A;
-    --popover: rgba(28, 28, 27, 0.96);
-    --popover-foreground: #f0f0ef;
+    --popover: rgba(26, 23, 20, 0.98);
+    --popover-foreground: #f5f5f4;
 
-    --panel-texture-bg: #111110;
-    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    --panel-texture-bg: #1a1714;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
   }
 
+  /* Visible dual-layer dot grid on body */
   body {
-    background: var(--background);
+    background-color: var(--background);
+    background-image:
+      /* Dark dots — small, frequent */
+      radial-gradient(circle, rgba(0, 0, 0, 0.18) 1.2px, transparent 1.2px),
+      /* Warm tinted dots — larger, sparse, offset */
+      radial-gradient(circle, rgba(200, 160, 120, 0.32) 1.5px, transparent 1.5px);
+    background-size: 20px 20px, 80px 80px;
+    background-position: 0 0, 14px 24px;
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.14) 1.2px, transparent 1.2px),
+      radial-gradient(circle, rgba(197, 248, 10, 0.22) 1.5px, transparent 1.5px);
+    background-size: 20px 20px, 80px 80px;
+    background-position: 0 0, 14px 24px;
   }
 }
 
@@ -89,7 +105,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0.45) 50%,
       transparent 100%
     );
     transform: translateX(-100%);
@@ -100,7 +116,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.12) 50%,
       transparent 100%
     );
   }
@@ -117,18 +133,30 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Surfaces: slightly lighter than body, with internal dot grid + grain */
   .app-surface {
     background-color: var(--panel-texture-bg);
-    background-image: var(--panel-texture-image);
-    background-size: 340px 340px;
+    background-image:
+      /* Internal subtle dots */
+      radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+      /* SVG grain texture */
+      var(--panel-texture-image);
+    background-size: 16px 16px, 200px 200px;
+    background-position: 0 0, 0 0;
+  }
+
+  .dark .app-surface {
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      var(--panel-texture-image);
   }
 
   /* 3D button shadow anatomy */
   .app-btn-3d {
     box-shadow:
       0 0 0 0.5px rgba(0, 0, 0, 0.08),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
       0 1px 2px rgba(0, 0, 0, 0.04),
       0 2px 4px rgba(0, 0, 0, 0.03),
       0 4px 8px rgba(0, 0, 0, 0.02);
@@ -137,8 +165,8 @@
   .dark .app-btn-3d {
     box-shadow:
       0 0 0 0.5px rgba(255, 255, 255, 0.06),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 1px 2px rgba(0, 0, 0, 0.2),
       0 2px 4px rgba(0, 0, 0, 0.15),
       0 4px 8px rgba(0, 0, 0, 0.1);

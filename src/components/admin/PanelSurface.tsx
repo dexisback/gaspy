@@ -22,10 +22,9 @@ export function PanelSurface({
       className={`
         app-surface
         relative overflow-hidden rounded-2xl
-        border border-border/30
-        bg-card
-        shadow-[0_1px_2px_rgba(0,0,0,0.03),0_4px_8px_rgba(0,0,0,0.02)]
-        dark:shadow-[0_1px_2px_rgba(0,0,0,0.15),0_4px_8px_rgba(0,0,0,0.1)]
+        border border-border/40
+        shadow-[0_1px_2px_rgba(0,0,0,0.03)]
+        dark:shadow-[0_1px_2px_rgba(0,0,0,0.15)]
         ${className}
       `}
     >

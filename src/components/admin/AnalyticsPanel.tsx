@@ -38,10 +38,10 @@ export function AnalyticsPanel({ initialData }: AnalyticsPanelProps) {
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
           className="flex items-center justify-between rounded-lg px-2.5 py-2.5 hover:bg-muted/50 transition-colors"
         >
-          <span className="text-[13px] text-foreground truncate pr-3">
+          <span className="text-[13px] font-medium text-[#1c1917] truncate pr-3">
             {item.question}
           </span>
-          <span className="shrink-0 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground font-tabular">
+          <span className="shrink-0 inline-flex items-center rounded-full bg-muted px-2 py-0.5 font-mono text-[10.5px] font-bold text-[#1F2937] font-tabular">
             {item.count}
           </span>
         </motion.div>

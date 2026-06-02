@@ -16,7 +16,7 @@ export function TopBar() {
         className="flex items-center gap-1 rounded-full border border-border/40 bg-card/80 px-1.5 py-1.5 backdrop-blur-md"
       >
         <motion.button
-          whileTap={{ scale: 0.92 }}
+          whileTap={{ scale: 0.96 }}
           onClick={toggleTheme}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground cursor-pointer"
           title="Toggle theme"
@@ -27,18 +27,18 @@ export function TopBar() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             {theme === "dark" ? (
-              <Moon size={16} strokeWidth={1.5} />
+              <Moon size={16} strokeWidth={1.5} className="opacity-80" />
             ) : (
-              <Sun size={16} strokeWidth={1.5} />
+              <Sun size={16} strokeWidth={1.5} className="opacity-80" />
             )}
           </motion.div>
         </motion.button>
         <motion.button
-          whileTap={{ scale: 0.92 }}
+          whileTap={{ scale: 0.96 }}
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground cursor-pointer"
           title="Settings"
         >
-          <Settings size={16} strokeWidth={1.5} />
+          <Settings size={16} strokeWidth={1.5} className="opacity-80" />
         </motion.button>
       </motion.div>
     </div>
