@@ -44,6 +44,27 @@ function getGreetingResponse(): string {
   return GREETING_RESPONSES[index];
 }
 
+async function generateWithFallback(prompt: string) {
+  try {
+    // Try flash first with retry
+    return await withRetry(() =>
+      gemini.models.generateContentStream({
+        model: "gemini-flash-latest",
+        contents: prompt,
+      })
+    );
+  } catch (error) {
+    // If flash fails, try pro as fallback
+    console.log("Flash model failed, falling back to Pro...");
+    return await withRetry(() =>
+      gemini.models.generateContentStream({
+        model: "gemini-1.5-pro",
+        contents: prompt,
+      })
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const limit = checkRateLimit("api-chat");
@@ -155,12 +176,7 @@ USER QUESTION:
 ${message}
 `;
 
-    const result = await withRetry(() =>
-      gemini.models.generateContentStream({
-        model: "gemini-flash-latest",
-        contents: prompt,
-      })
-    );
+    const result = await generateWithFallback(prompt);
 
     const encoder = new TextEncoder();
 
