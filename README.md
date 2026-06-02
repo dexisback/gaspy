@@ -141,7 +141,7 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin dashboard is at `/admin`.
+The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin dashboard is at `/admin?key=YOUR_ADMIN_SECRET`.
 
 ---
 
@@ -152,6 +152,7 @@ The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin d
 | `DATABASE_URL` | PostgreSQL connection string ( Neon with pgvector ) |
 | `GEMINI_API_KEY` | Google GenAI API key |
 | `SIMILARITY_THRESHOLD` | Vector distance cutoff for retrieval (default: 0.5) |
+| `ADMIN_SECRET` | Secret key to access the admin dashboard (default: `CHANGE_ME_ADMIN_SECRET`) |
 
 ## Cost & Free Tier
 
