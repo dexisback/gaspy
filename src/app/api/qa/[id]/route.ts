@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createEmbedding } from "@/lib/embeddings";
@@ -53,6 +54,8 @@ export async function PUT(
       })();
     }
 
+    revalidatePath("/admin");
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error(error);
@@ -70,6 +73,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     await prisma.qAPair.delete({ where: { id } });
+    revalidatePath("/admin");
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);

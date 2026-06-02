@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createId } from "@paralleldrive/cuid2";
 import { prisma } from "@/lib/prisma";
@@ -70,6 +71,8 @@ export async function POST(request: Request) {
         `;
       })
     );
+
+    revalidatePath("/admin");
 
     return NextResponse.json({
       success: true,

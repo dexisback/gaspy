@@ -77,13 +77,21 @@ export async function POST(request: Request) {
       });
     }
 
+    const SIMILARITY_THRESHOLD = parseFloat(
+      process.env.SIMILARITY_THRESHOLD || "0.5"
+    );
+
     const embedding = await createEmbedding(message);
 
     const chunks = await findSimilarChunks(embedding);
-    const relevantChunks = chunks.filter((chunk) => chunk.distance < 0.5);
+    const relevantChunks = chunks.filter(
+      (chunk) => chunk.distance < SIMILARITY_THRESHOLD
+    );
 
     const qaPairs = await findSimilarQAPairs(embedding);
-    const relevantQAPairs = qaPairs.filter((qa) => qa.distance < 0.5);
+    const relevantQAPairs = qaPairs.filter(
+      (qa) => qa.distance < SIMILARITY_THRESHOLD
+    );
 
     if (relevantChunks.length === 0) {
       prisma.questionLog

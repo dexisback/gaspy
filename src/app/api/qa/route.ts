@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createEmbedding } from "@/lib/embeddings";
@@ -59,6 +60,8 @@ export async function POST(request: Request) {
         console.error("Background embedding failed:", err);
       }
     })();
+
+    revalidatePath("/admin");
 
     return NextResponse.json(qaPair);
   } catch (error) {
