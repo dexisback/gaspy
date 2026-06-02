@@ -45,8 +45,8 @@ function getGreetingResponse(): string {
 }
 
 async function generateWithFallback(prompt: string) {
+  // Try flash first (fast, cost-effective)
   try {
-    // Try flash first with retry
     return await withRetry(() =>
       gemini.models.generateContentStream({
         model: "gemini-flash-latest",
@@ -54,15 +54,28 @@ async function generateWithFallback(prompt: string) {
       })
     );
   } catch (error) {
-    // If flash fails, try pro as fallback
-    console.log("Flash model failed, falling back to Pro...");
+    console.log("Flash model failed, trying 1.5 Pro...");
+  }
+
+  // Fallback 1: gemini-1.5-pro-latest
+  try {
     return await withRetry(() =>
       gemini.models.generateContentStream({
-        model: "gemini-1.5-pro",
+        model: "gemini-1.5-pro-latest",
         contents: prompt,
       })
     );
+  } catch (error) {
+    console.log("1.5 Pro failed, trying legacy Pro...");
   }
+
+  // Fallback 2: gemini-pro-latest (older but very stable)
+  return await withRetry(() =>
+    gemini.models.generateContentStream({
+      model: "gemini-pro-latest",
+      contents: prompt,
+    })
+  );
 }
 
 export async function POST(request: Request) {
