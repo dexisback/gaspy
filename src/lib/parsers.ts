@@ -1,4 +1,4 @@
-import { PDFParser } from "pdf2json";
+import PDFParser from "pdf2json";
 import mammoth from "mammoth";
 import * as xlsx from "xlsx";
 
