@@ -1,39 +1,14 @@
-import { gemini } from "@/lib/gemini";
+import pdf from "pdf-parse";
 import mammoth from "mammoth";
 import * as xlsx from "xlsx";
-
-async function extractPdfText(buffer: Buffer): Promise<string> {
-  const base64 = buffer.toString("base64");
-
-  const result = await gemini.models.generateContent({
-    model: "gemini-flash-latest",
-    contents: [
-      {
-        text: "Extract all the readable text from this PDF document. Return only the text content, preserving paragraph structure where possible.",
-      },
-      {
-        inlineData: {
-          mimeType: "application/pdf",
-          data: base64,
-        },
-      },
-    ],
-  });
-
-  const text = result.text;
-  if (!text) {
-    throw new Error("Gemini returned no text for this PDF");
-  }
-
-  return text.trim();
-}
 
 export async function extractText(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   if (file.type === "application/pdf") {
     try {
-      return await extractPdfText(buffer);
+      const result = await pdf(buffer);
+      return result.text;
     } catch (err) {
       console.error("PDF extraction error:", err);
       throw new Error(
