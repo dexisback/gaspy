@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   AreaChart,
@@ -10,25 +9,19 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { AnalyticsResponse } from "@/types";
-import { Spinner } from "@/components/ui/Spinner";
+import { TimelinePoint } from "@/types";
 
-export function AnalyticsChart() {
-  const [data, setData] = useState<AnalyticsResponse["timeline"]>([]);
-  const [loading, setLoading] = useState(true);
+interface AnalyticsChartProps {
+  initialData?: TimelinePoint[];
+}
 
-  useEffect(() => {
-    fetch("/api/analytics")
-      .then((res) => (res.ok ? res.json() : { timeline: [] }))
-      .then((json: AnalyticsResponse) => setData(json.timeline || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
+  const data = initialData || [];
 
-  if (loading) {
+  if (data.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Spinner className="h-5 w-5 text-gray-400" />
+      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+        No data available
       </div>
     );
   }
@@ -52,24 +45,26 @@ export function AnalyticsChart() {
             dataKey="hour"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "#9ca3af" }}
+            tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
             interval={2}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: "#9ca3af" }}
+            tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
             width={28}
           />
           <Tooltip
             contentStyle={{
-              borderRadius: "10px",
-              border: "1px solid #f3f4f6",
+              borderRadius: "12px",
+              border: "1px solid var(--border)",
+              background: "var(--popover)",
+              color: "var(--popover-foreground)",
               fontSize: "12px",
-              padding: "6px 10px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+              padding: "8px 12px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
             }}
-            cursor={{ stroke: "#e5e7eb", strokeWidth: 1 }}
+            cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
           />
           <Area
             type="monotone"
@@ -77,8 +72,8 @@ export function AnalyticsChart() {
             stroke="#C5F80A"
             strokeWidth={2}
             fill="url(#areaGreen)"
-            dot={{ r: 3, fill: "#171916", stroke: "#fff", strokeWidth: 2 }}
-            activeDot={{ r: 5, fill: "#C5F80A", stroke: "#fff", strokeWidth: 2 }}
+            dot={{ r: 3, fill: "var(--foreground)", stroke: "var(--background)", strokeWidth: 2 }}
+            activeDot={{ r: 5, fill: "#C5F80A", stroke: "var(--background)", strokeWidth: 2 }}
             animationDuration={1200}
             animationEasing="ease-out"
           />

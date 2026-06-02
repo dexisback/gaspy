@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Document } from "@/types";
 import { Trash2, FileText } from "lucide-react";
-import { Spinner } from "@/components/ui/Spinner";
+import { UploaderSkeleton } from "./Skeleton";
 
 function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B";
@@ -14,33 +14,21 @@ function formatBytes(bytes: number) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-export function DocumentList() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+interface DocumentListProps {
+  documents: Document[];
+  onDelete?: (id: string) => void;
+  loading?: boolean;
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/documents")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (!cancelled) setDocuments(data);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+export function DocumentList({ documents, onDelete, loading }: DocumentListProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
     setDeletingId(id);
     try {
       const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setDocuments((prev) => prev.filter((d) => d.id !== id));
+        onDelete?.(id);
       }
     } finally {
       setDeletingId(null);
@@ -48,16 +36,12 @@ export function DocumentList() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-4">
-        <Spinner className="h-4 w-4 text-gray-400" />
-      </div>
-    );
+    return <UploaderSkeleton />;
   }
 
   if (documents.length === 0) {
     return (
-      <p className="py-2 text-xs text-gray-400">No documents uploaded yet.</p>
+      <p className="py-3 text-xs text-muted-foreground">No documents uploaded yet.</p>
     );
   }
 
@@ -69,7 +53,7 @@ export function DocumentList() {
         hidden: {},
         visible: { transition: { staggerChildren: 0.03 } },
       }}
-      className="space-y-0.5"
+      className="space-y-1"
     >
       {documents.map((doc) => (
         <motion.div
@@ -79,26 +63,29 @@ export function DocumentList() {
             visible: { opacity: 1, y: 0 },
           }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors group"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-muted/60 transition-colors group"
         >
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <FileText className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-            <span className="text-xs text-gray-700 truncate">{doc.name}</span>
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <span className="text-xs text-foreground truncate">{doc.name}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] text-gray-400">{formatBytes(doc.size)}</span>
-            <button
+            <span className="text-[10px] text-muted-foreground font-tabular">
+              {formatBytes(doc.size)}
+            </span>
+            <motion.button
+              whileTap={{ scale: 0.92 }}
               onClick={() => handleDelete(doc.id)}
               disabled={deletingId === doc.id}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 active:scale-95"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
               title="Delete"
             >
               {deletingId === doc.id ? (
-                <Spinner className="h-3 w-3" />
+                <div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
               ) : (
                 <Trash2 className="h-3 w-3" />
               )}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       ))}

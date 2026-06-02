@@ -5,23 +5,78 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 }
 
 @layer base {
   :root {
     --background: #ffffff;
     --foreground: #171717;
+    --card: rgba(255, 255, 255, 0.72);
+    --card-foreground: #171717;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #C5F80A;
+    --accent-foreground: #171717;
+    --border: rgba(0, 0, 0, 0.06);
+    --ring: #C5F80A;
+    --popover: rgba(255, 255, 255, 0.9);
+    --popover-foreground: #171717;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0a0a0a;
-      --foreground: #ededed;
-    }
+  .dark {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --card: rgba(255, 255, 255, 0.05);
+    --card-foreground: #ededed;
+    --muted: #171717;
+    --muted-foreground: #a1a1aa;
+    --accent: #C5F80A;
+    --accent-foreground: #171717;
+    --border: rgba(255, 255, 255, 0.08);
+    --ring: #C5F80A;
+    --popover: rgba(20, 20, 20, 0.92);
+    --popover-foreground: #ededed;
   }
 
   body {
     background: var(--background);
     color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 1.8s infinite;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .font-tabular {
+    font-variant-numeric: tabular-nums;
   }
 }

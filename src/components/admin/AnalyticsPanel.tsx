@@ -1,33 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { AnalyticsResponse } from "@/types";
-import { Spinner } from "@/components/ui/Spinner";
+import { AnalyticsItem } from "@/types";
 
-export function AnalyticsPanel() {
-  const [data, setData] = useState<AnalyticsResponse["topQuestions"]>([]);
-  const [loading, setLoading] = useState(true);
+interface AnalyticsPanelProps {
+  initialData?: AnalyticsItem[];
+}
 
-  useEffect(() => {
-    fetch("/api/analytics")
-      .then((res) => (res.ok ? res.json() : { topQuestions: [] }))
-      .then((json: AnalyticsResponse) => setData(json.topQuestions || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-6">
-        <Spinner className="h-4 w-4 text-gray-400" />
-      </div>
-    );
-  }
+export function AnalyticsPanel({ initialData }: AnalyticsPanelProps) {
+  const data = initialData || [];
 
   if (data.length === 0) {
     return (
-      <p className="py-3 text-xs text-gray-400">
+      <p className="py-3 text-xs text-muted-foreground">
         No questions asked yet. Analytics will appear once users start chatting.
       </p>
     );
@@ -45,16 +30,18 @@ export function AnalyticsPanel() {
     >
       {data.slice(0, 8).map((item, i) => (
         <motion.div
-          key={i}
+          key={`${item.question}-${i}`}
           variants={{
             hidden: { opacity: 0, y: 6 },
             visible: { opacity: 1, y: 0 },
           }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-muted/60 transition-colors"
         >
-          <span className="text-xs text-gray-700 truncate pr-3">{item.question}</span>
-          <span className="shrink-0 inline-flex items-center rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
+          <span className="text-xs text-foreground truncate pr-3">
+            {item.question}
+          </span>
+          <span className="shrink-0 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground font-tabular">
             {item.count}
           </span>
         </motion.div>

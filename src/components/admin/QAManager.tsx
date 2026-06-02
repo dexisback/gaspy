@@ -3,12 +3,16 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QAPair } from "@/types";
-import { Pencil, Trash2, X } from "lucide-react";
-import { Spinner } from "@/components/ui/Spinner";
+import { Pencil, Trash2, X, Plus } from "lucide-react";
+import { ListSkeleton } from "./Skeleton";
 
-export function QAManager() {
-  const [qaPairs, setQaPairs] = useState<QAPair[]>([]);
-  const [loading, setLoading] = useState(true);
+interface QAManagerProps {
+  initialData?: QAPair[];
+}
+
+export function QAManager({ initialData }: QAManagerProps) {
+  const [qaPairs, setQaPairs] = useState<QAPair[]>(initialData || []);
+  const [loading, setLoading] = useState(!initialData || initialData.length === 0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
@@ -39,6 +43,10 @@ export function QAManager() {
   }
 
   useEffect(() => {
+    if (refreshKey === 0 && initialData && initialData.length > 0) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     fetch("/api/qa")
       .then((res) => (res.ok ? res.json() : []))
@@ -52,15 +60,7 @@ export function QAManager() {
     return () => {
       cancelled = true;
     };
-  }, [refreshKey]);
-
-  useEffect(() => {
-    function handleOpenAdd() {
-      openAdd();
-    }
-    window.addEventListener("open-qa-add", handleOpenAdd);
-    return () => window.removeEventListener("open-qa-add", handleOpenAdd);
-  }, []);
+  }, [refreshKey, initialData]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -105,70 +105,79 @@ export function QAManager() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-6">
-        <Spinner className="h-4 w-4 text-gray-400" />
-      </div>
-    );
-  }
-
   return (
     <>
-      {/* List */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.03 } },
-        }}
-        className="space-y-0.5"
-      >
-        {qaPairs.length === 0 && (
-          <p className="py-3 text-xs text-gray-400">No Q&A pairs yet.</p>
-        )}
-        {qaPairs.map((qa) => (
-          <motion.div
-            key={qa.id}
-            variants={{
-              hidden: { opacity: 0, y: 6 },
-              visible: { opacity: 1, y: 0 },
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-gray-50 transition-colors group"
-          >
-            <span className="text-xs text-gray-700 truncate pr-2">{qa.question}</span>
-            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={() => openEdit(qa)}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors active:scale-95"
-                title="Edit"
-              >
-                <Pencil className="h-3 w-3" />
-              </button>
-              <button
-                onClick={() => handleDelete(qa.id)}
-                disabled={actionLoadingId === qa.id}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors active:scale-95"
-                title="Delete"
-              >
-                {actionLoadingId === qa.id ? (
-                  <Spinner className="h-3 w-3" />
-                ) : (
-                  <Trash2 className="h-3 w-3" />
-                )}
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between shrink-0">
+        <h3 className="text-sm font-semibold text-foreground text-balance tracking-tight">
+          Q&A Pairs
+        </h3>
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={openAdd}
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background hover:bg-foreground/80 transition-colors"
+          title="Add Q&A Pair"
+        >
+          <Plus className="h-4 w-4" />
+        </motion.button>
+      </div>
 
-      {/* Add button fixed in tile header — actually rendered in parent page. 
-          We expose an onAdd callback? No, keep self-contained and let parent pass a trigger.
-          Better: the page passes a header button. I'll make QAManager accept an onAddClick prop or 
-          expose a ref? Simpler: page renders the + button and passes onAdd prop.
-      */}
+      {/* Content */}
+      {loading ? (
+        <ListSkeleton rows={6} />
+      ) : (
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.03 } },
+          }}
+          className="space-y-0.5"
+        >
+          {qaPairs.length === 0 && (
+            <p className="py-3 text-xs text-muted-foreground">No Q&A pairs yet.</p>
+          )}
+          {qaPairs.map((qa) => (
+            <motion.div
+              key={qa.id}
+              variants={{
+                hidden: { opacity: 0, y: 6 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-muted/60 transition-colors group"
+            >
+              <span className="text-xs text-foreground truncate pr-2">
+                {qa.question}
+              </span>
+              <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => openEdit(qa)}
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  title="Edit"
+                >
+                  <Pencil className="h-3 w-3" />
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => handleDelete(qa.id)}
+                  disabled={actionLoadingId === qa.id}
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                  title="Delete"
+                >
+                  {actionLoadingId === qa.id ? (
+                    <div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
+                  ) : (
+                    <Trash2 className="h-3 w-3" />
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Modal */}
       <AnimatePresence>
@@ -187,18 +196,19 @@ export function QAManager() {
               exit={{ scale: 0.95, y: 10, opacity: 0 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100"
+              className="w-full max-w-md rounded-2xl bg-popover p-6 shadow-2xl border border-border backdrop-blur-xl"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-popover-foreground">
                   {editingId ? "Edit Q&A Pair" : "Add Q&A Pair"}
                 </h3>
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
                   onClick={closeModal}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
-                </button>
+                </motion.button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-3">
                 <input
@@ -206,30 +216,36 @@ export function QAManager() {
                   placeholder="Question"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2.5 text-sm outline-none focus:border-gray-300 focus:bg-white transition-colors"
+                  className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring/50 focus:bg-card transition-colors"
                 />
                 <textarea
                   placeholder="Answer"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   rows={4}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2.5 text-sm outline-none focus:border-gray-300 focus:bg-white transition-colors resize-none"
+                  className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring/50 focus:bg-card transition-colors resize-none"
                 />
                 <div className="flex justify-end gap-2 pt-1">
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.96 }}
                     onClick={closeModal}
-                    className="rounded-xl px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors active:scale-95"
+                    className="rounded-xl px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="submit"
+                    whileTap={{ scale: 0.96 }}
                     disabled={saving}
-                    className="rounded-xl bg-[#171916] px-4 py-2 text-xs font-medium text-white hover:bg-gray-800 transition-colors active:scale-95 disabled:opacity-50"
+                    className="rounded-xl bg-foreground px-4 py-2 text-xs font-medium text-background hover:bg-foreground/80 transition-colors disabled:opacity-50"
                   >
-                    {saving ? "Saving..." : editingId ? "Save Changes" : "Add Pair"}
-                  </button>
+                    {saving
+                      ? "Saving..."
+                      : editingId
+                      ? "Save Changes"
+                      : "Add Pair"}
+                  </motion.button>
                 </div>
               </form>
             </motion.div>

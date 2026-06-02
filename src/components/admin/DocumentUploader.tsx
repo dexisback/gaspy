@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
   const [uploading, setUploading] = useState(false);
@@ -46,11 +47,12 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
 
   return (
     <div>
-      <div
-        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+      <motion.div
+        whileTap={{ scale: 0.99 }}
+        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-200 ${
           dragOver
-            ? "border-[#C5F80A] bg-[#C5F80A]/5"
-            : "border-gray-200 hover:border-gray-300"
+            ? "border-accent bg-accent/5 scale-[1.01]"
+            : "border-border hover:border-muted-foreground/30 hover:bg-muted/40"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -67,12 +69,12 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
           className="hidden"
           onChange={handleFileChange}
         />
-        <Upload className="mx-auto h-4 w-4 text-gray-400 mb-1.5" />
-        <p className="text-xs text-gray-500">
+        <Upload className="mx-auto h-5 w-5 text-muted-foreground mb-2" />
+        <p className="text-xs text-muted-foreground font-medium">
           {uploading ? "Uploading..." : "Drop a file or click to browse"}
         </p>
-        <p className="mt-0.5 text-[10px] text-gray-400">PDF, DOCX, XLSX</p>
-      </div>
+        <p className="mt-1 text-[10px] text-muted-foreground/60">PDF, DOCX, XLSX</p>
+      </motion.div>
       {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
     </div>
   );
