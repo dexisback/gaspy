@@ -45,7 +45,19 @@ function getGreetingResponse(): string {
 }
 
 async function generateWithFallback(prompt: string) {
-  // PRIMARY: gemini-1.5-pro-latest (most stable, rarely overloaded)
+  // PRIMARY: gemini-1.5-flash-latest (free tier, 1500 req/day, most available)
+  try {
+    return await withRetry(() =>
+      gemini.models.generateContentStream({
+        model: "gemini-1.5-flash-latest",
+        contents: prompt,
+      })
+    );
+  } catch (error) {
+    console.log("1.5 Flash failed, trying Pro...");
+  }
+
+  // FALLBACK 1: gemini-1.5-pro-latest (higher quality, lower quota)
   try {
     return await withRetry(() =>
       gemini.models.generateContentStream({
@@ -57,22 +69,10 @@ async function generateWithFallback(prompt: string) {
     console.log("1.5 Pro failed, trying legacy Pro...");
   }
 
-  // FALLBACK 1: gemini-pro-latest (legacy, always available)
-  try {
-    return await withRetry(() =>
-      gemini.models.generateContentStream({
-        model: "gemini-pro-latest",
-        contents: prompt,
-      })
-    );
-  } catch (error) {
-    console.log("Legacy Pro failed, trying Flash...");
-  }
-
-  // FALLBACK 2: gemini-flash-latest (last resort)
+  // FALLBACK 2: gemini-pro-latest (legacy, always available)
   return await withRetry(() =>
     gemini.models.generateContentStream({
-      model: "gemini-flash-latest",
+      model: "gemini-pro-latest",
       contents: prompt,
     })
   );
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
       (qa) => qa.distance < SIMILARITY_THRESHOLD
     );
 
-    if (relevantChunks.length === 0) {
+    if (relevantChunks.length === 0 && relevantQAPairs.length === 0) {
       prisma.questionLog
         .create({
           data: { question: message, hasContext: false },
@@ -223,7 +223,9 @@ ${message}
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
-    console.error(error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorName = error instanceof Error ? error.name : "Unknown";
+    console.error("Chat error:", errorName, "-", errorMsg);
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
