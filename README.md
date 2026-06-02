@@ -20,31 +20,33 @@ A dashboard at `/admin` provides:
 
 ## Architecture
 
+### Document Ingestion
+
 ```mermaid
 flowchart TD
-    subgraph Client
-        C1[Landing Page + Chat Widget]
-        C2[Admin Dashboard]
-    end
+    A[Admin Dashboard] -->|Upload Document| B[POST /api/documents/upload]
+    B --> C[Text Extraction<br/>pdf-parse-new / mammoth / xlsx]
+    C --> D[Chunking<br/>2000 chars / 200 overlap]
+    D --> E[Parallel Embedding<br/>gemini-embedding-001]
+    E --> F[Prisma $executeRaw]
+    F --> G[(Neon PostgreSQL<br/>pgvector extension)]
+```
 
-    subgraph Next.js
-        R1[App Router]
-        R2[API Routes]
-    end
+### Query & Retrieval
 
-    subgraph Backend
-        G1[Google GenAI]
-        E1[Vector Search]
-        E2[Prisma ORM]
-    end
-
-    C1 -->|POST api/chat| R2
-    C2 -->|CRUD api/documents| R2
-    C2 -->|CRUD api/qa| R2
-    C2 -->|GET api/analytics| R2
-    R2 --> G1
-    R2 --> E2
-    E2 --> E1
+```mermaid
+flowchart TD
+    U[User] -->|Question| A[POST /api/chat]
+    A --> B[Create Embedding<br/>gemini-embedding-001]
+    B --> C[Vector Search<br/>Prisma $queryRaw]
+    C --> D[(Neon PostgreSQL<br/>ORDER BY embedding <=> query_vector)]
+    D --> E[Similar Chunks]
+    D --> F[Similar Q&A Pairs]
+    E --> G[Similarity Filtering<br/>distance < SIMILARITY_THRESHOLD]
+    F --> G
+    G --> H[Prompt Construction<br/>context + user question]
+    H --> I[Gemini Flash<br/>generateContentStream]
+    I --> J[Streaming Response<br/>text/plain]
 ```
 
 ---
