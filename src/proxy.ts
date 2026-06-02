@@ -5,7 +5,7 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || "CHANGE_ME_ADMIN_SECRET";
 const COOKIE_NAME = "admin-auth";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   // Protect admin page
