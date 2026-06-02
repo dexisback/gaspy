@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { gemini, withRetry } from "@/lib/gemini";
+import { gemini } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import {
@@ -44,40 +44,6 @@ function getGreetingResponse(): string {
   return GREETING_RESPONSES[index];
 }
 
-async function generateWithFallback(prompt: string) {
-  // PRIMARY: gemini-1.5-flash-latest (free tier, 1500 req/day, most available)
-  try {
-    return await withRetry(() =>
-      gemini.models.generateContentStream({
-        model: "gemini-1.5-flash-latest",
-        contents: prompt,
-      })
-    );
-  } catch (error) {
-    console.log("1.5 Flash failed, trying Pro...");
-  }
-
-  // FALLBACK 1: gemini-1.5-pro-latest (higher quality, lower quota)
-  try {
-    return await withRetry(() =>
-      gemini.models.generateContentStream({
-        model: "gemini-1.5-pro-latest",
-        contents: prompt,
-      })
-    );
-  } catch (error) {
-    console.log("1.5 Pro failed, trying legacy Pro...");
-  }
-
-  // FALLBACK 2: gemini-pro-latest (legacy, always available)
-  return await withRetry(() =>
-    gemini.models.generateContentStream({
-      model: "gemini-pro-latest",
-      contents: prompt,
-    })
-  );
-}
-
 export async function POST(request: Request) {
   try {
     const limit = checkRateLimit("api-chat");
@@ -102,7 +68,6 @@ export async function POST(request: Request) {
       data: { role: "user", content: message },
     });
 
-    // Fast path: greetings — no embedding, no LLM call
     if (isGreeting(message)) {
       const response = getGreetingResponse();
       await prisma.message.create({
@@ -120,23 +85,12 @@ export async function POST(request: Request) {
       });
     }
 
-    const SIMILARITY_THRESHOLD = parseFloat(
-      process.env.SIMILARITY_THRESHOLD || "0.5"
-    );
-
     const embedding = await createEmbedding(message);
 
     const chunks = await findSimilarChunks(embedding);
-    const relevantChunks = chunks.filter(
-      (chunk) => chunk.distance < SIMILARITY_THRESHOLD
-    );
-
     const qaPairs = await findSimilarQAPairs(embedding);
-    const relevantQAPairs = qaPairs.filter(
-      (qa) => qa.distance < SIMILARITY_THRESHOLD
-    );
 
-    if (relevantChunks.length === 0 && relevantQAPairs.length === 0) {
+    if (chunks.length === 0 && qaPairs.length === 0) {
       prisma.questionLog
         .create({
           data: { question: message, hasContext: false },
@@ -163,8 +117,8 @@ export async function POST(request: Request) {
       });
     }
 
-    const context = relevantChunks.map((chunk) => chunk.content).join("\n\n");
-    const qaContext = relevantQAPairs
+    const context = chunks.map((chunk) => chunk.content).join("\n\n");
+    const qaContext = qaPairs
       .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
       .join("\n\n");
 
@@ -189,7 +143,10 @@ USER QUESTION:
 ${message}
 `;
 
-    const result = await generateWithFallback(prompt);
+    const result = await gemini.models.generateContentStream({
+      model: "gemini-1.5-flash-latest",
+      contents: prompt,
+    });
 
     const encoder = new TextEncoder();
 
@@ -207,7 +164,7 @@ ${message}
           });
           controller.close();
         } catch (error) {
-          console.error(error);
+          console.error("Stream error:", error);
           controller.error(error);
         }
       },
@@ -224,8 +181,7 @@ ${message}
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    const errorName = error instanceof Error ? error.name : "Unknown";
-    console.error("Chat error:", errorName, "-", errorMsg);
+    console.error("Chat error:", errorMsg);
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
