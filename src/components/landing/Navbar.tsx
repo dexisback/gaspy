@@ -10,12 +10,20 @@ const navLinks = [
   { label: "Blog", href: "#" },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  shrink?: boolean;
+}
+
+export function Navbar({ shrink = false }: NavbarProps) {
   return (
     <motion.header
       initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      animate={{
+        opacity: 1,
+        y: shrink ? 6 : 0,
+        scale: shrink ? 0.94 : 1,
+      }}
+      transition={{ duration: 0.4, ease: "easeOut" as const }}
       className="relative z-50"
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
