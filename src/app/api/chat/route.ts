@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { gemini } from "@/lib/gemini";
+import { gemini, withRetry } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import {
@@ -155,10 +155,12 @@ USER QUESTION:
 ${message}
 `;
 
-    const result = await gemini.models.generateContentStream({
-      model: "gemini-flash-latest",
-      contents: prompt,
-    });
+    const result = await withRetry(() =>
+      gemini.models.generateContentStream({
+        model: "gemini-flash-latest",
+        contents: prompt,
+      })
+    );
 
     const encoder = new TextEncoder();
 

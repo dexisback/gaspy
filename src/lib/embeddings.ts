@@ -1,7 +1,4 @@
-import { gemini } from "@/lib/gemini";
-
-
-
+import { gemini, withRetry } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 
 type SimilarChunk = {
@@ -19,16 +16,16 @@ type SimilarQAPair = {
 };
 
 export async function createEmbedding(text: string) {
-  const response = await gemini.models.embedContent({
-    model: "gemini-embedding-001",
-    contents: text,
-  });
+  const response = await withRetry(() =>
+    gemini.models.embedContent({
+      model: "gemini-embedding-001",
+      contents: text,
+    })
+  );
 
-
-//   return response.embeddings?.[0]?.values ?? [], 
-const embedding = response.embeddings?.[0]?.values ?? [];
-console.log("Embedding length:", embedding.length);
-return embedding 
+  const embedding = response.embeddings?.[0]?.values ?? [];
+  console.log("Embedding length:", embedding.length);
+  return embedding;
 }
 
 
