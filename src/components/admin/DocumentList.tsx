@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Document } from "@/types";
-import { Trash2, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
+import { AnimatedTrashIcon } from "./AnimatedIcons";
 import { UploaderSkeleton } from "./Skeleton";
 
 function formatBytes(bytes: number) {
@@ -22,6 +23,7 @@ interface DocumentListProps {
 
 export function DocumentList({ documents, onDelete, loading }: DocumentListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [hoveredDeleteId, setHoveredDeleteId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
     setDeletingId(id);
@@ -41,7 +43,9 @@ export function DocumentList({ documents, onDelete, loading }: DocumentListProps
 
   if (documents.length === 0) {
     return (
-      <p className="py-3 text-xs text-muted-foreground">No documents uploaded yet.</p>
+      <p className="py-4 text-[13px] font-medium text-muted-foreground">
+        No documents uploaded yet.
+      </p>
     );
   }
 
@@ -53,7 +57,7 @@ export function DocumentList({ documents, onDelete, loading }: DocumentListProps
         hidden: {},
         visible: { transition: { staggerChildren: 0.03 } },
       }}
-      className="space-y-1"
+      className="space-y-0.5"
     >
       {documents.map((doc) => (
         <motion.div
@@ -63,27 +67,33 @@ export function DocumentList({ documents, onDelete, loading }: DocumentListProps
             visible: { opacity: 1, y: 0 },
           }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-muted/60 transition-colors group"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2.5 hover:bg-muted/50 transition-colors group"
         >
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <span className="text-xs text-foreground truncate">{doc.name}</span>
+            <FileText
+              className="text-muted-foreground shrink-0"
+              size={14}
+              strokeWidth={1.5}
+            />
+            <span className="text-[13px] text-foreground truncate">{doc.name}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] text-muted-foreground font-tabular">
+            <span className="text-[10.5px] text-muted-foreground font-tabular">
               {formatBytes(doc.size)}
             </span>
             <motion.button
               whileTap={{ scale: 0.92 }}
+              onHoverStart={() => setHoveredDeleteId(doc.id)}
+              onHoverEnd={() => setHoveredDeleteId((prev) => prev === doc.id ? null : prev)}
               onClick={() => handleDelete(doc.id)}
               disabled={deletingId === doc.id}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+              className="flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
               title="Delete"
             >
               {deletingId === doc.id ? (
-                <div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
+                <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-muted" />
               ) : (
-                <Trash2 className="h-3 w-3" />
+                <AnimatedTrashIcon open={hoveredDeleteId === doc.id} />
               )}
             </motion.button>
           </div>

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QAPair } from "@/types";
-import { Pencil, Trash2, X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { ListSkeleton } from "./Skeleton";
+import { AnimatedTrashIcon, AnimatedPencilIcon } from "./AnimatedIcons";
 
 interface QAManagerProps {
   initialData?: QAPair[];
@@ -20,6 +21,8 @@ export function QAManager({ initialData }: QAManagerProps) {
   const [saving, setSaving] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [slicedId, setSlicedId] = useState<string | null>(null);
+  const [hoveredDeleteId, setHoveredDeleteId] = useState<string | null>(null);
 
   function openAdd() {
     setEditingId(null);
@@ -94,14 +97,16 @@ export function QAManager({ initialData }: QAManagerProps) {
   }
 
   async function handleDelete(id: string) {
-    setActionLoadingId(id);
+    setSlicedId(id);
+    setTimeout(() => {
+      setSlicedId(null);
+      setQaPairs((prev) => prev.filter((qa) => qa.id !== id));
+    }, 240);
+
     try {
-      const res = await fetch(`/api/qa/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setQaPairs((prev) => prev.filter((qa) => qa.id !== id));
-      }
-    } finally {
-      setActionLoadingId(null);
+      await fetch(`/api/qa/${id}`, { method: "DELETE" });
+    } catch {
+      // silently fail, UI already updated
     }
   }
 
@@ -109,16 +114,16 @@ export function QAManager({ initialData }: QAManagerProps) {
     <>
       {/* Header */}
       <div className="mb-4 flex items-center justify-between shrink-0">
-        <h3 className="text-sm font-semibold text-foreground text-balance tracking-tight">
+        <h3 className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
           Q&A Pairs
         </h3>
         <motion.button
-          whileTap={{ scale: 0.92 }}
+          whileTap={{ scale: 0.96 }}
           onClick={openAdd}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background hover:bg-foreground/80 transition-colors"
+          className="app-btn-3d flex h-7 w-7 items-center justify-center rounded-[6px] bg-background text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
           title="Add Q&A Pair"
         >
-          <Plus className="h-4 w-4" />
+          <Plus size={14} strokeWidth={1.5} />
         </motion.button>
       </div>
 
@@ -133,10 +138,12 @@ export function QAManager({ initialData }: QAManagerProps) {
             hidden: {},
             visible: { transition: { staggerChildren: 0.03 } },
           }}
-          className="space-y-0.5"
+          className="space-y-2"
         >
           {qaPairs.length === 0 && (
-            <p className="py-3 text-xs text-muted-foreground">No Q&A pairs yet.</p>
+            <p className="py-6 text-[13px] font-medium text-muted-foreground text-pretty text-center">
+              No Q&A pairs yet.
+            </p>
           )}
           {qaPairs.map((qa) => (
             <motion.div
@@ -146,34 +153,63 @@ export function QAManager({ initialData }: QAManagerProps) {
                 visible: { opacity: 1, y: 0 },
               }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-muted/60 transition-colors group"
+              className="relative flex min-h-[4.5rem] items-start gap-2 rounded-xl border border-border/40 bg-background/70 px-3 py-3"
             >
-              <span className="text-xs text-foreground truncate pr-2">
-                {qa.question}
-              </span>
-              <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <p className="text-[13px] font-medium text-foreground truncate">
+                  {qa.question}
+                </p>
+                <p className="text-[10.5px] leading-relaxed text-muted-foreground line-clamp-2">
+                  {qa.answer}
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-center gap-1 pr-1">
                 <motion.button
-                  whileTap={{ scale: 0.92 }}
+                  type="button"
+                  whileTap={{ scale: 0.96 }}
                   onClick={() => openEdit(qa)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  title="Edit"
+                  className="group relative flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 cursor-pointer"
+                  aria-label="Edit"
                 >
-                  <Pencil className="h-3 w-3" />
+                  <AnimatedPencilIcon />
+                  <motion.span
+                    className="pointer-events-none absolute -bottom-0.5 left-1/2 h-[1.5px] w-3 -translate-x-1/2 rounded-full bg-current opacity-0"
+                    initial={false}
+                    whileHover={{ opacity: 0.55, scaleX: [0.2, 1] }}
+                    transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                  />
                 </motion.button>
+
                 <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => handleDelete(qa.id)}
-                  disabled={actionLoadingId === qa.id}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
-                  title="Delete"
+                  type="button"
+                  whileTap={{ scale: 0.96 }}
+                  onHoverStart={() => setHoveredDeleteId(qa.id)}
+                  onHoverEnd={() =>
+                    setHoveredDeleteId((prev) =>
+                      prev === qa.id ? null : prev
+                    )
+                  }
+                  onClick={() => void handleDelete(qa.id)}
+                  className="relative flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 cursor-pointer"
+                  aria-label="Delete"
                 >
-                  {actionLoadingId === qa.id ? (
-                    <div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
-                  ) : (
-                    <Trash2 className="h-3 w-3" />
-                  )}
+                  <AnimatedTrashIcon open={hoveredDeleteId === qa.id} />
                 </motion.button>
               </div>
+
+              {/* Slice sweep animation */}
+              <AnimatePresence>
+                {slicedId === qa.id && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -40 }}
+                    animate={{ opacity: 0.9, x: 150 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.24, ease: [0, 0, 0.58, 1] }}
+                    className="absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white/5 via-white/70 to-white/5 dark:from-white/5 dark:via-white/30 dark:to-white/5"
+                  />
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </motion.div>
@@ -187,58 +223,71 @@ export function QAManager({ initialData }: QAManagerProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/25"
+            style={{ backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
             onClick={closeModal}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 10, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 350, damping: 25 }}
+              initial={{ y: 8, opacity: 0, scale: 0.985 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 8, opacity: 0, scale: 0.985 }}
+              transition={{ duration: 0.2, ease: [0, 0, 0.58, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-popover p-6 shadow-2xl border border-border backdrop-blur-xl"
+              className="relative z-10 w-full max-w-md rounded-xl border border-border/60 bg-card p-5 shadow-[0_1px_2px_rgba(17,24,39,0.06),0_18px_40px_rgba(17,24,39,0.12)]"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-popover-foreground">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-[13px] font-semibold text-foreground">
                   {editingId ? "Edit Q&A Pair" : "Add Q&A Pair"}
-                </h3>
+                </h2>
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={closeModal}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  className="flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 hover:text-foreground cursor-pointer"
+                  aria-label="Close"
                 >
-                  <X className="h-4 w-4" />
+                  <X size={14} strokeWidth={1.5} />
                 </motion.button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Question"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring/50 focus:bg-card transition-colors"
-                />
-                <textarea
-                  placeholder="Answer"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-ring/50 focus:bg-card transition-colors resize-none"
-                />
+                <label className="block">
+                  <span className="mb-1 block text-[10.5px] font-medium text-muted-foreground">
+                    Question
+                  </span>
+                  <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Enter question"
+                    className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-ring/40 transition-colors"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[10.5px] font-medium text-muted-foreground">
+                    Answer
+                  </span>
+                  <textarea
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    rows={4}
+                    placeholder="Enter answer"
+                    className="w-full resize-none rounded-md border border-border/70 bg-background px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-ring/40 transition-colors"
+                  />
+                </label>
                 <div className="flex justify-end gap-2 pt-1">
                   <motion.button
                     type="button"
                     whileTap={{ scale: 0.96 }}
                     onClick={closeModal}
-                    className="rounded-xl px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
+                    disabled={saving}
+                    className="rounded-[6px] border border-border/70 bg-background px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-muted/40 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Cancel
                   </motion.button>
                   <motion.button
                     type="submit"
                     whileTap={{ scale: 0.96 }}
-                    disabled={saving}
-                    className="rounded-xl bg-foreground px-4 py-2 text-xs font-medium text-background hover:bg-foreground/80 transition-colors disabled:opacity-50"
+                    disabled={saving || !question.trim() || !answer.trim()}
+                    className="app-btn-3d rounded-[6px] bg-foreground px-3 py-1.5 text-[11px] font-medium text-background hover:bg-foreground/85 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {saving
                       ? "Saving..."

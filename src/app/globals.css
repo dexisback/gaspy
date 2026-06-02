@@ -20,33 +20,40 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #171717;
-    --card: rgba(255, 255, 255, 0.72);
-    --card-foreground: #171717;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
+    --background: #FAFAF8;
+    --foreground: #1a1a1a;
+    --card: #FAFAF8;
+    --card-foreground: #1a1a1a;
+    --muted: #f2f1ef;
+    --muted-foreground: #8a8986;
     --accent: #C5F80A;
     --accent-foreground: #171717;
     --border: rgba(0, 0, 0, 0.06);
     --ring: #C5F80A;
-    --popover: rgba(255, 255, 255, 0.9);
-    --popover-foreground: #171717;
+    --popover: rgba(255, 255, 255, 0.96);
+    --popover-foreground: #1a1a1a;
+
+    /* Panel texture for surfaces */
+    --panel-texture-bg: #FAFAF8;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   }
 
   .dark {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --card: rgba(255, 255, 255, 0.05);
-    --card-foreground: #ededed;
-    --muted: #171717;
-    --muted-foreground: #a1a1aa;
+    --background: #111110;
+    --foreground: #f0f0ef;
+    --card: #141413;
+    --card-foreground: #f0f0ef;
+    --muted: #1c1c1b;
+    --muted-foreground: #7a7a78;
     --accent: #C5F80A;
     --accent-foreground: #171717;
-    --border: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.07);
     --ring: #C5F80A;
-    --popover: rgba(20, 20, 20, 0.92);
-    --popover-foreground: #ededed;
+    --popover: rgba(28, 28, 27, 0.96);
+    --popover-foreground: #f0f0ef;
+
+    --panel-texture-bg: #111110;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   }
 
   body {
@@ -57,15 +64,45 @@
   }
 }
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 @layer utilities {
-  .animate-shimmer {
-    animation: shimmer 1.8s infinite;
+  .app-shimmer-block {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      color-mix(in srgb, var(--muted) 70%, var(--background)) 50%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  .app-shimmer-block::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmer-slide 2s infinite;
+  }
+
+  .dark .app-shimmer-block::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      transparent 100%
+    );
   }
 
   .text-balance {
@@ -78,5 +115,32 @@
 
   .font-tabular {
     font-variant-numeric: tabular-nums;
+  }
+
+  .app-surface {
+    background-color: var(--panel-texture-bg);
+    background-image: var(--panel-texture-image);
+    background-size: 340px 340px;
+  }
+
+  /* 3D button shadow anatomy */
+  .app-btn-3d {
+    box-shadow:
+      0 0 0 0.5px rgba(0, 0, 0, 0.08),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.03),
+      0 4px 8px rgba(0, 0, 0, 0.02);
+  }
+
+  .dark .app-btn-3d {
+    box-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.06),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.15),
+      0 4px 8px rgba(0, 0, 0, 0.1);
   }
 }

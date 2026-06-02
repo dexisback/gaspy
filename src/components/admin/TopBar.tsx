@@ -8,32 +8,39 @@ export function TopBar() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="flex h-16 items-center justify-end gap-3 border-b border-border bg-card/60 backdrop-blur-xl px-6 shrink-0">
-      <motion.button
-        whileTap={{ scale: 0.92 }}
-        onClick={toggleTheme}
-        className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        title="Toggle theme"
+    <div className="absolute top-5 right-8 z-40">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 28, delay: 0.1 }}
+        className="flex items-center gap-1 rounded-full border border-border/40 bg-card/80 px-1.5 py-1.5 backdrop-blur-md"
       >
-        <motion.div
-          initial={false}
-          animate={{ rotate: theme === "dark" ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          onClick={toggleTheme}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground cursor-pointer"
+          title="Toggle theme"
         >
-          {theme === "dark" ? (
-            <Moon className="h-4 w-4" />
-          ) : (
-            <Sun className="h-4 w-4" />
-          )}
-        </motion.div>
-      </motion.button>
-      <motion.button
-        whileTap={{ scale: 0.92 }}
-        className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        title="Settings"
-      >
-        <Settings className="h-4 w-4" />
-      </motion.button>
-    </header>
+          <motion.div
+            initial={false}
+            animate={{ rotate: theme === "dark" ? 180 : 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            {theme === "dark" ? (
+              <Moon size={16} strokeWidth={1.5} />
+            ) : (
+              <Sun size={16} strokeWidth={1.5} />
+            )}
+          </motion.div>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground cursor-pointer"
+          title="Settings"
+        >
+          <Settings size={16} strokeWidth={1.5} />
+        </motion.button>
+      </motion.div>
+    </div>
   );
 }
