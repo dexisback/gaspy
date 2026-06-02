@@ -13,6 +13,8 @@ const chatSchema = z.object({
   message: z.string().min(1).max(2000),
 });
 
+const MODELS = ["gemini-flash-latest", "gemini-2.5-flash"];
+
 const GREETING_PATTERNS = [
   /^\s*hi\b/i,
   /^\s*hello\b/i,
@@ -143,10 +145,24 @@ USER QUESTION:
 ${message}
 `;
 
-    const result = await gemini.models.generateContentStream({
-      model: "gemini-1.5-flash-latest",
-      contents: prompt,
-    });
+    let result;
+    let lastError;
+    for (const model of MODELS) {
+      try {
+        result = await gemini.models.generateContentStream({
+          model,
+          contents: prompt,
+        });
+        break;
+      } catch (err) {
+        lastError = err;
+        console.log(`Model ${model} failed, trying next...`);
+      }
+    }
+
+    if (!result) {
+      throw lastError;
+    }
 
     const encoder = new TextEncoder();
 
