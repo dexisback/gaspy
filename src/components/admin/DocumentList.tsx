@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Document } from "@/types";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Trash2, FileText } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 
 function formatBytes(bytes: number) {
@@ -47,43 +47,61 @@ export function DocumentList() {
     }
   }
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <Spinner />
+      <div className="flex justify-center py-4">
+        <Spinner className="h-4 w-4 text-gray-400" />
       </div>
     );
+  }
 
-  if (documents.length === 0)
+  if (documents.length === 0) {
     return (
-      <p className="py-4 text-sm text-gray-500">No documents uploaded yet.</p>
+      <p className="py-2 text-xs text-gray-400">No documents uploaded yet.</p>
     );
+  }
 
   return (
-    <div className="space-y-2">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.03 } },
+      }}
+      className="space-y-0.5"
+    >
       {documents.map((doc) => (
-        <div
+        <motion.div
           key={doc.id}
-          className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+          variants={{
+            hidden: { opacity: 0, y: 4 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 28 }}
+          className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors group"
         >
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-sm">{doc.name}</p>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-              <Badge>{doc.type || "unknown"}</Badge>
-              <span>{formatBytes(doc.size)}</span>
-              <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-            </div>
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <FileText className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+            <span className="text-xs text-gray-700 truncate">{doc.name}</span>
           </div>
-          <Button
-            variant="danger"
-            className="ml-4 shrink-0"
-            loading={deletingId === doc.id}
-            onClick={() => handleDelete(doc.id)}
-          >
-            Delete
-          </Button>
-        </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] text-gray-400">{formatBytes(doc.size)}</span>
+            <button
+              onClick={() => handleDelete(doc.id)}
+              disabled={deletingId === doc.id}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 active:scale-95"
+              title="Delete"
+            >
+              {deletingId === doc.id ? (
+                <Spinner className="h-3 w-3" />
+              ) : (
+                <Trash2 className="h-3 w-3" />
+              )}
+            </button>
+          </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

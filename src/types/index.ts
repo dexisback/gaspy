@@ -18,3 +18,13 @@ export interface AnalyticsItem {
   question: string;
   count: number;
 }
+
+export interface TimelinePoint {
+  hour: string;
+  count: number;
+}
+
+export interface AnalyticsResponse {
+  topQuestions: AnalyticsItem[];
+  timeline: TimelinePoint[];
+}

@@ -1,49 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnalyticsItem } from "@/types";
+import { motion } from "framer-motion";
+import { AnalyticsResponse } from "@/types";
 import { Spinner } from "@/components/ui/Spinner";
-import { Badge } from "@/components/ui/Badge";
 
 export function AnalyticsPanel() {
-  const [data, setData] = useState<AnalyticsItem[]>([]);
+  const [data, setData] = useState<AnalyticsResponse["topQuestions"]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/analytics")
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setData)
+      .then((res) => (res.ok ? res.json() : { topQuestions: [] }))
+      .then((json: AnalyticsResponse) => setData(json.topQuestions || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <Spinner />
+      <div className="flex justify-center py-6">
+        <Spinner className="h-4 w-4 text-gray-400" />
       </div>
     );
+  }
 
-  if (data.length === 0)
+  if (data.length === 0) {
     return (
-      <p className="py-4 text-sm text-gray-500">
-        No questions asked yet. Analytics will appear here once users start
-        chatting.
+      <p className="py-3 text-xs text-gray-400">
+        No questions asked yet. Analytics will appear once users start chatting.
       </p>
     );
+  }
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-semibold mb-3">Top Asked Questions</h3>
-      {data.map((item, i) => (
-        <div
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.03 } },
+      }}
+      className="space-y-1"
+    >
+      {data.slice(0, 8).map((item, i) => (
+        <motion.div
           key={i}
-          className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 p-3"
+          variants={{
+            hidden: { opacity: 0, y: 6 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 28 }}
+          className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition-colors"
         >
-          <span className="text-sm">{item.question}</span>
-          <Badge className="ml-4 shrink-0">{item.count}x</Badge>
-        </div>
+          <span className="text-xs text-gray-700 truncate pr-3">{item.question}</span>
+          <span className="shrink-0 inline-flex items-center rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
+            {item.count}
+          </span>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

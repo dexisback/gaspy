@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Upload } from "lucide-react";
 
 export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
   const [uploading, setUploading] = useState(false);
@@ -46,10 +47,10 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
   return (
     <div>
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
           dragOver
-            ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
-            : "border-gray-300 dark:border-gray-600 hover:border-gray-400"
+            ? "border-[#C5F80A] bg-[#C5F80A]/5"
+            : "border-gray-200 hover:border-gray-300"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -66,14 +67,13 @@ export function DocumentUploader({ onUploaded }: { onUploaded: () => void }) {
           className="hidden"
           onChange={handleFileChange}
         />
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {uploading
-            ? "Uploading..."
-            : "Drag & drop a file here, or click to browse"}
+        <Upload className="mx-auto h-4 w-4 text-gray-400 mb-1.5" />
+        <p className="text-xs text-gray-500">
+          {uploading ? "Uploading..." : "Drop a file or click to browse"}
         </p>
-        <p className="mt-1 text-xs text-gray-400">PDF, DOCX, XLSX</p>
+        <p className="mt-0.5 text-[10px] text-gray-400">PDF, DOCX, XLSX</p>
       </div>
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
     </div>
   );
 }

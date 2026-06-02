@@ -11,12 +11,6 @@ type SimilarChunk = {
   distance: number
 };
 
-type RelevantQAPair = {
-  id: string;
-  question: string;
-  answer: string;
-};
-
 type SimilarQAPair = {
   id: string;
   question: string;
