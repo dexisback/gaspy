@@ -1,14 +1,49 @@
-import pdf from "pdf-parse";
+import { PDFParser } from "pdf2json";
 import mammoth from "mammoth";
 import * as xlsx from "xlsx";
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const pdfParser = new PDFParser();
+
+    pdfParser.on("pdfParser_dataError", (err) => {
+      reject(new Error(String(err)));
+    });
+
+    pdfParser.on("pdfParser_dataReady", () => {
+      const data = pdfParser.data as any;
+      let text = "";
+
+      if (data && data.Pages) {
+        for (const page of data.Pages) {
+          if (page.Texts) {
+            for (const textItem of page.Texts) {
+              if (textItem.R) {
+                for (const run of textItem.R) {
+                  text += run.T || "";
+                }
+              }
+              text += " ";
+            }
+          }
+          text += "\n";
+        }
+      }
+
+      resolve(text.trim());
+      pdfParser.destroy();
+    });
+
+    pdfParser.parseBuffer(buffer);
+  });
+}
 
 export async function extractText(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   if (file.type === "application/pdf") {
     try {
-      const result = await pdf(buffer);
-      return result.text;
+      return await extractPdfText(buffer);
     } catch (err) {
       console.error("PDF extraction error:", err);
       throw new Error(
