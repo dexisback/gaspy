@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { createId } from "@paralleldrive/cuid2";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limiter";
 import { extractText } from "@/lib/parsers";
 import { chunkText } from "@/lib/chunker";
 import { createEmbedding } from "@/lib/embeddings";
@@ -17,6 +17,14 @@ const ALLOWED_TYPES = [
 
 export async function POST(request: Request) {
   try {
+    const limit = checkRateLimit("api-upload");
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: limit.reason },
+        { status: 429 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
 

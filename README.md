@@ -71,7 +71,7 @@ flowchart TD
 ## How the RAG Pipeline Works
 
 1. **Ingestion**
-   - Document → `extractText()` (pdf-parse-new / mammoth / xlsx) → raw text
+    - Document → `extractText()` (Gemini PDF reading / mammoth / xlsx) → raw text
    - `chunkText()` splits into 2000-char chunks with 200-char overlap
    - Each chunk is embedded via `gemini-embedding-001` and stored in the `Chunk` table with a `vector` column
 
@@ -153,6 +153,16 @@ The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin d
 | `GEMINI_API_KEY` | Google GenAI API key |
 | `SIMILARITY_THRESHOLD` | Vector distance cutoff for retrieval (default: 0.5) |
 
+## Cost & Free Tier
+
+The app is designed to run entirely on free tiers:
+
+- **Google GenAI** — 1,500 requests/day at 60 RPM (Gemini Flash + Embeddings)
+- **Neon Postgres** — Free tier with pgvector extension
+- **Vercel** — Hobby tier (serverless functions)
+
+An in-memory rate limiter enforces these caps automatically. If you hit the daily limit, the API returns `429 Too Many Requests` until the next day.
+
 ---
 
 ## Key Design Decisions
@@ -182,7 +192,7 @@ If this were deployed to production, the next priorities would be:
 The admin dashboard is currently unprotected. A production deployment needs at minimum a password gate; ideally OAuth (NextAuth or Clerk) with role-based access so support managers can edit Q&A but not delete documents.
 
 ### 2. Rate Limiting
-`POST /api/chat` and `POST /api/documents/upload` hit paid APIs. Without rate limits, a single script can drain credits or DOS the upload pipeline. `@upstash/ratelimit` or a Redis-backed middleware per IP would be the standard fix.
+Already implemented with an in-memory limiter: 60 requests per minute, 1500 per day. This aligns with the Google GenAI free tier and prevents accidental or malicious overuse. For production, switch to `@upstash/ratelimit` or Redis-backed per-IP limits so the counter survives serverless cold starts.
 
 ### 3. Model Upgrades & Fallbacks
 Gemini Flash is fast and cheap, but for high-stakes answers (e.g., legal or medical contexts), a fallback to Gemini Pro or even a self-hosted model makes sense. The model string is already centralized in `lib/gemini.ts` — swapping it is trivial.

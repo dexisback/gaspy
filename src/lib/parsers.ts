@@ -1,29 +1,30 @@
+import { gemini } from "@/lib/gemini";
 import mammoth from "mammoth";
 import * as xlsx from "xlsx";
 
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // Lazy import to avoid loading pdfjs-dist unless a PDF is actually uploaded.
-  // This prevents module initialization errors from crashing the whole API route.
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const base64 = buffer.toString("base64");
 
-  const doc = await pdfjs.getDocument({
-    data: new Uint8Array(buffer),
-    useSystemFonts: true,
-    isEvalSupported: false,
-    cMapUrl: "./",
-    standardFontDataUrl: "./",
-  }).promise;
+  const result = await gemini.models.generateContent({
+    model: "gemini-1.5-flash",
+    contents: [
+      {
+        text: "Extract all the readable text from this PDF document. Return only the text content, preserving paragraph structure where possible.",
+      },
+      {
+        inlineData: {
+          mimeType: "application/pdf",
+          data: base64,
+        },
+      },
+    ],
+  });
 
-  let text = "";
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const strings = (content.items as any[]).map((item) => item.str || "");
-    text += strings.join(" ") + "\n";
-    page.cleanup();
+  const text = result.text;
+  if (!text) {
+    throw new Error("Gemini returned no text for this PDF");
   }
 
-  await doc.destroy();
   return text.trim();
 }
 

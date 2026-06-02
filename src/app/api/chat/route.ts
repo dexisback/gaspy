@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { gemini } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limiter";
 import {
   createEmbedding,
   findSimilarChunks,
@@ -45,6 +46,14 @@ function getGreetingResponse(): string {
 
 export async function POST(request: Request) {
   try {
+    const limit = checkRateLimit("api-chat");
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: limit.reason },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = chatSchema.safeParse(body);
     if (!parsed.success) {
