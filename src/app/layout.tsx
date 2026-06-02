@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Gaspy",
   description: "Your AI-powered chatbot for effortless support and scheduling",
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.png?v=2",
   },
 };
 

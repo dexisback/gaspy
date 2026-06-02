@@ -57,7 +57,7 @@ export function Hero() {
       {/* CTA */}
       <motion.div variants={itemVariants} className="mt-6">
         <Link
-          href="/chat"
+          href="/admin"
           className="inline-flex items-center justify-center rounded-lg bg-[#1F2937] px-7 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-gray-800 active:scale-[0.98]"
         >
           Get Started
