@@ -17,6 +17,7 @@ const chatSchema = z.object({
 const GEMINI_MODEL = "gemini-flash-latest";
 const GROQ_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 500;
+const RELEVANCE_THRESHOLD = 0.6;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -139,7 +140,14 @@ export async function POST(request: Request) {
     const chunks = await findSimilarChunks(embedding);
     const qaPairs = await findSimilarQAPairs(embedding);
 
-    if (chunks.length === 0 && qaPairs.length === 0) {
+    const relevantChunks = chunks.filter(
+      (chunk) => chunk.distance < RELEVANCE_THRESHOLD
+    );
+    const relevantQaPairs = qaPairs.filter(
+      (qa) => qa.distance < RELEVANCE_THRESHOLD
+    );
+
+    if (relevantChunks.length === 0 && relevantQaPairs.length === 0) {
       prisma.questionLog
         .create({
           data: { question: message, hasContext: false },
@@ -147,7 +155,7 @@ export async function POST(request: Request) {
         .catch(() => {});
 
       const fallback =
-        "I'm not sure about that one — I don't have anything in my knowledge base that covers it yet.\n\n" +
+        "I don't have anything in my knowledge base that covers that one yet.\n\n" +
         "Here are a few things I can help with:\n" +
         "• Questions about uploaded documents\n" +
         "• How something works based on your docs\n" +
@@ -166,8 +174,8 @@ export async function POST(request: Request) {
       });
     }
 
-    const context = chunks.map((chunk) => chunk.content).join("\n\n");
-    const qaContext = qaPairs
+    const context = relevantChunks.map((chunk) => chunk.content).join("\n\n");
+    const qaContext = relevantQaPairs
       .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
       .join("\n\n");
 
@@ -208,14 +216,17 @@ ${message}
           controller.close();
         } catch (error) {
           console.error("Stream error:", error);
-          controller.error(error);
+          const recovery =
+            "I hit a snag while answering that. Please try again in a moment.";
+          controller.enqueue(encoder.encode(recovery));
+          controller.close();
         }
       },
     });
 
     prisma.questionLog
       .create({
-        data: { question: message, hasContext: chunks.length > 0 },
+        data: { question: message, hasContext: relevantChunks.length > 0 },
       })
       .catch(() => {});
 

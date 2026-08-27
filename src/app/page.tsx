@@ -29,19 +29,21 @@ export default function Home() {
 
       {/* Mascot / Chat morphing at bottom-right */}
       <div className="fixed bottom-6 right-6 z-50">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {chatOpen ? (
             <motion.div
               key="chat-panel"
-              initial={{ opacity: 0, scale: 0.15, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.15, y: 20 }}
+              initial={{ opacity: 0, scale: 0.25 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.25 }}
               transition={{
                 type: "spring",
-                stiffness: 380,
-                damping: 26,
+                stiffness: 550,
+                damping: 34,
+                mass: 0.55,
               }}
               style={{ originX: 1, originY: 1 }}
+              className="absolute bottom-0 right-0"
             >
               <ChatPanel onClose={() => setChatOpen(false)} />
             </motion.div>
@@ -50,12 +52,14 @@ export default function Home() {
               key="mascot"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
+              exit={{ opacity: 0, scale: 0.5 }}
               transition={{
                 type: "spring",
-                stiffness: 400,
-                damping: 24,
+                stiffness: 550,
+                damping: 34,
+                mass: 0.55,
               }}
+              className="absolute bottom-0 right-0"
             >
               <button
                 onClick={() => setChatOpen(true)}

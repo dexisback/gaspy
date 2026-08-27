@@ -5,16 +5,14 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
 import Fuse from "fuse.js";
-import {
-  FileText,
-  MessageSquare,
-  LayoutDashboard,
-  Search,
-  Sun,
-  Moon,
-  Home,
-  ChevronRight
-} from "lucide-react";
+import { FileTextIcon } from "@/components/ui/file-text";
+import { MessageSquareIcon } from "@/components/ui/message-square";
+import { GaugeIcon } from "@/components/ui/gauge";
+import { SearchIcon } from "@/components/ui/search";
+import { SunIcon } from "@/components/ui/sun";
+import { MoonIcon } from "@/components/ui/moon";
+import { HomeIcon } from "@/components/ui/home";
+import { ChevronRightIcon } from "@/components/ui/chevron-right";
 import { useTheme } from "../admin/ThemeProvider";
 import { QAPair, Document } from "@/types";
 
@@ -78,7 +76,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
       title: "Go to Home",
       subtitle: "Return to landing page overview",
       category: "Navigation",
-      icon: Home,
+      icon: HomeIcon,
       action: () => {
         router.push("/");
         setOpen(false);
@@ -89,7 +87,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
       title: "Go to Chat Workspace",
       subtitle: "Talk to the document AI intelligence agent",
       category: "Navigation",
-      icon: MessageSquare,
+      icon: MessageSquareIcon,
       action: () => {
         router.push("/chat");
         setOpen(false);
@@ -100,7 +98,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
       title: "Admin Dashboard",
       subtitle: "View core overview metrics and charts",
       category: "Navigation",
-      icon: LayoutDashboard,
+      icon: GaugeIcon,
       action: () => {
         router.push("/admin");
         setOpen(false);
@@ -113,7 +111,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
     title: doc.name,
     subtitle: `Size: ${(doc.size / 1024).toFixed(1)} KB · Type: ${doc.type}`,
     category: "Documents",
-    icon: FileText,
+    icon: FileTextIcon,
     action: () => {
       router.push("/admin");
       setOpen(false);
@@ -125,7 +123,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
     title: qa.question,
     subtitle: `Answer: ${qa.answer}`,
     category: "Q&A",
-    icon: MessageSquare,
+    icon: MessageSquareIcon,
     action: () => {
       router.push("/admin");
       setOpen(false);
@@ -139,7 +137,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
       title: themeCtx.theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode",
       subtitle: "Change application dashboard appearance theme",
       category: "Actions",
-      icon: themeCtx.theme === "dark" ? Sun : Moon,
+      icon: themeCtx.theme === "dark" ? SunIcon : MoonIcon,
       action: () => {
         themeCtx.toggleTheme();
         setOpen(false);
@@ -185,7 +183,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
           >
             <Command shouldFilter={false} label="Command Menu" className="flex flex-col">
               <div className="flex items-center border-b border-border/80 px-4 py-3.5">
-                <Search className="mr-3 h-4 w-4 shrink-0 text-muted-foreground/60" />
+                <SearchIcon className="mr-3 shrink-0 text-muted-foreground/60" size={16} />
                 <Command.Input
                   value={search}
                   onValueChange={setSearch}
@@ -217,7 +215,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-sm transition-all duration-150 data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground group outline-none"
                         >
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground group-data-[selected=true]:bg-accent-foreground/10 group-data-[selected=true]:text-accent-foreground">
-                            <Icon size={14} strokeWidth={1.8} />
+                            <Icon size={14} />
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="font-medium truncate text-foreground group-data-[selected=true]:text-accent-foreground">
@@ -229,7 +227,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
                               </span>
                             )}
                           </div>
-                          <ChevronRight
+                          <ChevronRightIcon
                             size={12}
                             className="text-muted-foreground/40 group-data-[selected=true]:text-accent-foreground/60 transition-transform group-data-[selected=true]:translate-x-0.5"
                           />

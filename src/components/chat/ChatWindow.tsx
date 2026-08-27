@@ -104,6 +104,10 @@ export function ChatWindow() {
 
   const lastMessage = messages[messages.length - 1];
 
+  function handleStop() {
+    abortRef.current?.abort();
+  }
+
   return (
     <div className="flex h-full flex-col bg-white">
       {/* Messages */}
@@ -146,6 +150,24 @@ export function ChatWindow() {
 
       {/* Input */}
       <div className="border-t border-gray-100 px-4 py-3">
+        {isLoading && (
+          <div className="mb-2 flex justify-center">
+            <button
+              onClick={handleStop}
+              className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98] cursor-pointer"
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <rect x="5" y="5" width="14" height="14" rx="2" />
+              </svg>
+              Stop generating
+            </button>
+          </div>
+        )}
         <ChatInput onSend={handleSend} />
       </div>
     </div>

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QAPair } from "@/types";
-import { Plus, X } from "lucide-react";
+import { PlusIcon } from "@/components/ui/plus";
+import { XIcon } from "@/components/ui/x";
 import { AnimatedTrashIcon, AnimatedPencilIcon } from "./AnimatedIcons";
 
 interface QAManagerProps {
@@ -124,7 +125,7 @@ export function QAManager({ initialData }: QAManagerProps) {
           className="app-btn-3d flex h-7 w-7 items-center justify-center rounded-[6px] bg-background text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
           title="Add Q&A Pair"
         >
-          <Plus size={14} strokeWidth={1.5} className="opacity-80" />
+          <PlusIcon size={14} className="opacity-80" />
         </motion.button>
       </div>
 
@@ -245,7 +246,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                   className="flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 hover:text-foreground cursor-pointer"
                   aria-label="Close"
                 >
-                  <X size={14} strokeWidth={1.5} className="opacity-80" />
+                  <XIcon size={14} className="opacity-80" />
                 </motion.button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-3">

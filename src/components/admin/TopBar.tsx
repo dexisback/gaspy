@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sun, Moon, Settings, Search } from "lucide-react";
+import { SunIcon } from "@/components/ui/sun";
+import { MoonIcon } from "@/components/ui/moon";
+import { SettingsIcon } from "@/components/ui/settings";
+import { SearchIcon } from "@/components/ui/search";
 import { useTheme } from "./ThemeProvider";
 import { useSearch } from "@/components/ui/SearchProvider";
 
@@ -23,7 +26,7 @@ export function TopBar() {
           className="flex h-8 items-center gap-2 rounded-full border border-border/30 bg-muted/40 px-3 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground cursor-pointer"
           title="Search (Ctrl+K)"
         >
-          <Search size={12} className="opacity-70" />
+          <SearchIcon size={12} className="opacity-70" />
           <span className="hidden sm:inline">Search...</span>
           <kbd className="pointer-events-none rounded bg-card/80 px-1.5 font-mono text-[9px] text-muted-foreground/60 border border-border/30">
             ⌘K
@@ -42,9 +45,9 @@ export function TopBar() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             {theme === "dark" ? (
-              <Moon size={16} strokeWidth={1.5} className="opacity-80" />
+              <MoonIcon size={16} className="opacity-80" />
             ) : (
-              <Sun size={16} strokeWidth={1.5} className="opacity-80" />
+              <SunIcon size={16} className="opacity-80" />
             )}
           </motion.div>
         </motion.button>
@@ -53,7 +56,7 @@ export function TopBar() {
           className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground cursor-pointer"
           title="Settings"
         >
-          <Settings size={16} strokeWidth={1.5} className="opacity-80" />
+          <SettingsIcon size={16} className="opacity-80" />
         </motion.button>
       </div>
     </motion.header>

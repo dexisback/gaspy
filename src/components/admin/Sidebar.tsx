@@ -1,21 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  FileText,
-  MessageSquare,
-  BarChart3,
-  Users,
-} from "lucide-react";
+import { GaugeIcon } from "@/components/ui/gauge";
+import { FileTextIcon } from "@/components/ui/file-text";
+import { MessageSquareIcon } from "@/components/ui/message-square";
+import { ChartColumnIncreasingIcon } from "@/components/ui/chart-column-increasing";
+import { UsersIcon } from "@/components/ui/users";
 import { Tooltip } from "./Tooltip";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard" },
-  { icon: FileText, label: "Documents" },
-  { icon: MessageSquare, label: "Q&A" },
-  { icon: BarChart3, label: "Analytics" },
-  { icon: Users, label: "Users" },
+  { icon: GaugeIcon, label: "Dashboard" },
+  { icon: FileTextIcon, label: "Documents" },
+  { icon: MessageSquareIcon, label: "Q&A" },
+  { icon: ChartColumnIncreasingIcon, label: "Analytics" },
+  { icon: UsersIcon, label: "Users" },
 ];
 
 export function Sidebar() {
@@ -37,7 +35,6 @@ export function Sidebar() {
               <item.icon
                 className="shrink-0 opacity-55"
                 size={15}
-                strokeWidth={1.6}
               />
               {/* Active indicator */}
               <div className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-r-full bg-accent opacity-0 hover:opacity-100 transition-opacity" />

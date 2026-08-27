@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Upload } from "lucide-react";
+import { UploadIcon } from "@/components/ui/upload";
 
 interface DocumentUploaderProps {
   onUploaded: () => void;
@@ -79,7 +79,7 @@ export function DocumentUploader({ onUploaded, dragOver = false }: DocumentUploa
           className="hidden"
           onChange={handleFileChange}
         />
-        <Upload size={14} strokeWidth={1.5} className="opacity-80" />
+        <UploadIcon size={14} className="opacity-80" />
         {uploading ? "Uploading..." : dragOver ? "Drop to upload" : "Upload document"}
       </motion.button>
       {error && <p className="mt-2 text-[11px] text-red-500">{error}</p>}
