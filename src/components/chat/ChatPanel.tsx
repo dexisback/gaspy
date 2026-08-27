@@ -20,10 +20,8 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
       }}
       className="relative flex flex-col overflow-hidden rounded-3xl bg-white"
       style={{
-        width: "380px",
-        maxWidth: "100%",
-        height: "540px",
-        maxHeight: "85vh",
+        width: "min(380px, calc(100vw - 48px))",
+        height: "min(540px, calc(100vh - 48px))",
         boxShadow: `
           0 0 0 1px rgba(0,0,0,0.06),
           0 4px 12px rgba(0,0,0,0.05),

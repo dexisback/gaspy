@@ -30,9 +30,9 @@ export function Navbar({ shrink = false }: NavbarProps) {
       transition={{ duration: 0.4, ease: "easeOut" as const }}
       className="relative z-50"
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-4 py-5">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="col-start-1 flex items-center gap-2 justify-self-start">
           <span className="h-3 w-3 rounded-full bg-[#C5F80A]" />
           <span className="text-lg font-bold tracking-tight text-gray-900">
             Gaspy
@@ -40,7 +40,7 @@ export function Navbar({ shrink = false }: NavbarProps) {
         </Link>
 
         {/* Center Nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="col-start-2 hidden items-center gap-8 justify-self-center md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -53,7 +53,7 @@ export function Navbar({ shrink = false }: NavbarProps) {
         </nav>
 
         {/* Auth Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="col-start-3 flex items-center gap-3 justify-self-end">
           <button
             onClick={toggleSearch}
             className="hidden items-center gap-2 rounded-lg border border-gray-200/80 bg-gray-50/60 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150 cursor-pointer sm:flex md:mr-2"

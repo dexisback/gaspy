@@ -25,14 +25,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div
-        onMouseEnter={() => setPhoneHover(true)}
-        onMouseLeave={() => setPhoneHover(false)}
-        className="fixed bottom-0 left-1/2 z-10 -translate-x-1/2"
-        style={{ height: "480px", width: "360px" }}
-      >
-        <PhoneMockup />
-      </div>
+      <PhoneMockup onHoverChange={setPhoneHover} />
 
       {/* Mascot / Chat morphing at bottom-right */}
       <div className="fixed bottom-6 right-6 z-50">

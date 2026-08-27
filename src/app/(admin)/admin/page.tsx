@@ -35,7 +35,7 @@ export default function AdminPage() {
         </div>
 
         {/* Dashboard Bento Grid */}
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-40 pt-16">
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-40 pt-6">
           <div className="grid grid-cols-12 gap-x-8 gap-y-7">
             {/* Left Column */}
             <div className="col-span-12 lg:col-span-7 flex flex-col gap-7">

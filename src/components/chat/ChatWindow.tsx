@@ -7,41 +7,57 @@ import { ChatInput } from "./ChatInput";
 import { TypingIndicator } from "./TypingIndicator";
 
 export type Message = {
+  id: string;
   role: "user" | "assistant";
   content: string;
 };
 
+let messageSeq = 0;
+
+function createMessage(role: Message["role"], content: string): Message {
+  return { id: `m-${Date.now()}-${++messageSeq}`, role, content };
+}
+
 export function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hey there! I'm Gaspy. Ask me anything about your documents.",
-    },
+    createMessage(
+      "assistant",
+      "Hey there! I'm Gaspy. Ask me anything about your documents."
+    ),
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
   async function handleSend(message: string) {
-    if (!message.trim() || isLoading) return;
+    const trimmed = message.trim();
+    if (!trimmed) return;
 
-    const userMessage: Message = { role: "user", content: message.trim() };
-    setMessages((prev) => [...prev, userMessage]);
+    // Stop any in-flight stream before starting a new one.
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const userMessage = createMessage("user", trimmed);
+    const assistantMessage = createMessage("assistant", "");
+
+    setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setIsLoading(true);
     setError(null);
-
-    const assistantMessage: Message = { role: "assistant", content: "" };
-    setMessages((prev) => [...prev, assistantMessage]);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.content }),
+        body: JSON.stringify({ message: trimmed }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -61,25 +77,32 @@ export function ChatWindow() {
         const chunk = decoder.decode(value, { stream: true });
         assistantMessage.content += chunk;
 
-        setMessages((prev) => {
-          const next = [...prev];
-          next[next.length - 1] = { ...assistantMessage };
-          return next;
-        });
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessage.id
+              ? { ...m, content: assistantMessage.content }
+              : m
+          )
+        );
       }
     } catch (err) {
+      if (controller.signal.aborted) return;
       const msg = err instanceof Error ? err.message : "Something went wrong";
       setError(msg);
-      assistantMessage.content = `Error: ${msg}`;
-      setMessages((prev) => {
-        const next = [...prev];
-        next[next.length - 1] = { ...assistantMessage };
-        return next;
-      });
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessage.id ? { ...m, content: `Error: ${msg}` } : m
+        )
+      );
     } finally {
-      setIsLoading(false);
+      if (abortRef.current === controller) {
+        setIsLoading(false);
+        abortRef.current = null;
+      }
     }
   }
+
+  const lastMessage = messages[messages.length - 1];
 
   return (
     <div className="flex h-full flex-col bg-white">
@@ -87,11 +110,11 @@ export function ChatWindow() {
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="space-y-3">
           {messages.map((msg, i) => (
-            <MessageBubble key={i} message={msg} index={i} />
+            <MessageBubble key={msg.id} message={msg} index={i} />
           ))}
 
           <AnimatePresence>
-            {isLoading && messages[messages.length - 1]?.content === "" && (
+            {isLoading && lastMessage?.role === "assistant" && lastMessage.content === "" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -123,7 +146,7 @@ export function ChatWindow() {
 
       {/* Input */}
       <div className="border-t border-gray-100 px-4 py-3">
-        <ChatInput onSend={handleSend} disabled={isLoading} />
+        <ChatInput onSend={handleSend} />
       </div>
     </div>
   );

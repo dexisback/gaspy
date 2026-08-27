@@ -65,17 +65,23 @@ function DashboardMockup() {
   );
 }
 
-export function PhoneMockup() {
+export function PhoneMockup({
+  onHoverChange,
+}: {
+  onHoverChange?: (hovered: boolean) => void;
+}) {
   return (
     <div
-      className="fixed bottom-0 left-1/2 z-10 -translate-x-1/2"
+      className="pointer-events-none fixed bottom-0 left-1/2 z-10 -translate-x-1/2"
       style={{ height: "440px" }}
     >
       <motion.div
-        className="relative cursor-pointer"
+        className="pointer-events-auto relative cursor-pointer"
         initial={{ y: 390 }}
         animate={{ y: 390 }}
         whileHover={{ y: 170 }}
+        onMouseEnter={() => onHoverChange?.(true)}
+        onMouseLeave={() => onHoverChange?.(false)}
         transition={{
           type: "spring",
           stiffness: 500,

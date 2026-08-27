@@ -134,22 +134,16 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Surfaces: slightly lighter than body, with internal dot grid + grain */
+  /* Surfaces: slightly lighter than body, with grain texture */
   .app-surface {
     background-color: var(--panel-texture-bg);
-    background-image:
-      /* Internal subtle dots */
-      radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-      /* SVG grain texture */
-      var(--panel-texture-image);
-    background-size: 16px 16px, 200px 200px;
-    background-position: 0 0, 0 0;
+    background-image: var(--panel-texture-image);
+    background-size: 200px 200px;
+    background-position: 0 0;
   }
 
   .dark .app-surface {
-    background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-      var(--panel-texture-image);
+    background-image: var(--panel-texture-image);
   }
 
   /* 3D button shadow anatomy */

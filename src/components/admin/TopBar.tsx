@@ -10,13 +10,13 @@ export function TopBar() {
   const { toggleSearch } = useSearch();
 
   return (
-    <div className="absolute top-5 right-8 z-40">
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 28, delay: 0.1 }}
-        className="flex items-center gap-2 rounded-full border border-border/40 bg-card/80 px-2 py-1.5 backdrop-blur-md"
-      >
+    <motion.header
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 28, delay: 0.1 }}
+      className="z-40 flex items-center justify-end px-6 py-5"
+    >
+      <div className="flex items-center gap-2.5 rounded-full border border-border/40 bg-card/80 px-2.5 py-1.5 shadow-sm backdrop-blur-md">
         <motion.button
           whileTap={{ scale: 0.96 }}
           onClick={toggleSearch}
@@ -29,6 +29,7 @@ export function TopBar() {
             ⌘K
           </kbd>
         </motion.button>
+        <span className="mx-0.5 h-5 w-px bg-border/50" />
         <motion.button
           whileTap={{ scale: 0.96 }}
           onClick={toggleTheme}
@@ -54,7 +55,7 @@ export function TopBar() {
         >
           <Settings size={16} strokeWidth={1.5} className="opacity-80" />
         </motion.button>
-      </motion.div>
-    </div>
+      </div>
+    </motion.header>
   );
 }
