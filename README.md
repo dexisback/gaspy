@@ -87,9 +87,9 @@ flowchart TD
 
 4. **Generation**
    - Retrieved context is injected into the prompt
-   - Gemini Flash (`gemini-flash-latest`) streams the response back as `text/plain`
-   - Falls back to `gemini-2.5-flash` if the primary model is unavailable
-   - Greetings bypass the LLM entirely — fast path with pre-written responses
+    - Gemini Flash (`gemini-flash-latest`) streams the response back as `text/plain`
+    - Falls back to Groq (OpenAI-compatible API) if the primary model is unavailable, with 3 exponential-backoff retries
+    - Greetings bypass the LLM entirely — fast path with pre-written responses
 
 ---
 

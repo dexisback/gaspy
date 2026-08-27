@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { gemini } from "@/lib/gemini";
+import { groqGenerateContentStream, GROQ_MODEL } from "@/lib/groq";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import {
@@ -13,7 +14,53 @@ const chatSchema = z.object({
   message: z.string().min(1).max(2000),
 });
 
-const MODELS = ["gemini-flash-latest", "gemini-2.5-flash"];
+const GEMINI_MODEL = "gemini-flash-latest";
+const GROQ_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 500;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function* createAnswerStream(
+  prompt: string
+): AsyncGenerator<string> {
+  try {
+    const stream = await gemini.models.generateContentStream({
+      model: GEMINI_MODEL,
+      contents: prompt,
+    });
+    for await (const chunk of stream) {
+      const text = chunk.text ?? "";
+      if (text) yield text;
+    }
+    return;
+  } catch (err) {
+    console.log(`Gemini (${GEMINI_MODEL}) failed, falling back to Groq:`, err);
+  }
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= GROQ_RETRIES; attempt++) {
+    if (attempt > 0) {
+      const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1);
+      await sleep(delay);
+    }
+    try {
+      for await (const text of groqGenerateContentStream(prompt)) {
+        yield text;
+      }
+      return;
+    } catch (err) {
+      lastError = err;
+      console.log(
+        `Groq (${GROQ_MODEL}) attempt ${attempt + 1}/${GROQ_RETRIES + 1} failed:`,
+        err
+      );
+    }
+  }
+
+  throw lastError;
+}
 
 const GREETING_PATTERNS = [
   /^\s*hi\b/i,
@@ -145,33 +192,13 @@ USER QUESTION:
 ${message}
 `;
 
-    let result;
-    let lastError;
-    for (const model of MODELS) {
-      try {
-        result = await gemini.models.generateContentStream({
-          model,
-          contents: prompt,
-        });
-        break;
-      } catch (err) {
-        lastError = err;
-        console.log(`Model ${model} failed, trying next...`);
-      }
-    }
-
-    if (!result) {
-      throw lastError;
-    }
-
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       async start(controller) {
         let fullAnswer = "";
         try {
-          for await (const chunk of result) {
-            const text = chunk.text ?? "";
+          for await (const text of createAnswerStream(prompt)) {
             fullAnswer += text;
             controller.enqueue(encoder.encode(text));
           }
