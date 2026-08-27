@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Search } from "lucide-react";
+import { useSearch } from "@/components/ui/SearchProvider";
 
 const navLinks = [
   { label: "Home", href: "#" },
@@ -15,6 +17,8 @@ interface NavbarProps {
 }
 
 export function Navbar({ shrink = false }: NavbarProps) {
+  const { toggleSearch } = useSearch();
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -10 }}
@@ -50,6 +54,17 @@ export function Navbar({ shrink = false }: NavbarProps) {
 
         {/* Auth Buttons */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={toggleSearch}
+            className="hidden items-center gap-2 rounded-lg border border-gray-200/80 bg-gray-50/60 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150 cursor-pointer sm:flex md:mr-2"
+          >
+            <Search size={13} className="opacity-80" />
+            <span>Search...</span>
+            <span className="pointer-events-none rounded border border-gray-200 bg-white px-1.5 font-mono text-[9px] text-gray-400">
+              ⌘K
+            </span>
+          </button>
+
           <Link
             href="#"
             className="text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900"
