@@ -8,7 +8,7 @@ export function TypingIndicator() {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="h-[7px] w-[7px] rounded-full bg-gray-500"
+          className="h-[7px] w-[7px] rounded-full bg-gray-500 dark:bg-gray-400"
           animate={{ y: [0, -5, 0] }}
           transition={{
             duration: 0.9,

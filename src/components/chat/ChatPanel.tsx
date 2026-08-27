@@ -14,7 +14,7 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
-      className="relative flex flex-col overflow-hidden rounded-3xl bg-white"
+      className="relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-[#1c1a18]"
       style={{
         width: "min(380px, calc(100vw - 48px))",
         height: "min(540px, calc(100vh - 48px))",
@@ -27,17 +27,17 @@ export function ChatPanel({ onClose }: ChatPanelProps) {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5 dark:border-white/10">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#171916]">
-            <span className="text-[10px] font-bold text-white">G</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#171916] dark:bg-[#C5F80A]">
+            <span className="text-[10px] font-bold text-white dark:text-[#171717]">G</span>
           </div>
-          <span className="text-sm font-semibold text-[#171916]">Gaspy</span>
+          <span className="text-sm font-semibold text-[#171916] dark:text-[#f0efee]">Gaspy</span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 active:scale-[0.92]"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 active:scale-[0.92] dark:hover:bg-white/10 dark:hover:text-gray-200"
           >
             <svg
               width="14"

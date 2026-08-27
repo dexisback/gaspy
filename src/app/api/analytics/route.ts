@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { guardAdminApi } from "@/lib/auth-guard";
 import { formatHourLabel } from "@/lib/utils";
 
 export async function GET() {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const logs = await prisma.questionLog.groupBy({
       by: ["question"],

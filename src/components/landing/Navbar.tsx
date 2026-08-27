@@ -33,8 +33,7 @@ export function Navbar({ shrink = false }: NavbarProps) {
       <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-4 py-5">
         {/* Logo */}
         <Link href="/" className="col-start-1 flex items-center gap-2 justify-self-start">
-          <span className="h-3 w-3 rounded-full bg-[#C5F80A]" />
-          <span className="text-lg font-bold tracking-tight text-gray-900">
+          <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-gray-50">
             Gaspy
           </span>
         </Link>
@@ -45,7 +44,7 @@ export function Navbar({ shrink = false }: NavbarProps) {
             <Link
               key={link.label}
               href={link.href}
-              className="relative text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900"
+              className="relative text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
               {link.label}
             </Link>
@@ -56,26 +55,20 @@ export function Navbar({ shrink = false }: NavbarProps) {
         <div className="col-start-3 flex items-center gap-3 justify-self-end">
           <button
             onClick={toggleSearch}
-            className="hidden items-center gap-2 rounded-lg border border-gray-200/80 bg-gray-50/60 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150 cursor-pointer sm:flex md:mr-2"
+            className="hidden items-center gap-2 rounded-lg border border-gray-200/80 bg-gray-50/60 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all duration-150 cursor-pointer dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-100 sm:flex md:mr-2"
           >
             <Search size={13} className="opacity-80" />
             <span>Search...</span>
-            <span className="pointer-events-none rounded border border-gray-200 bg-white px-1.5 font-mono text-[9px] text-gray-400">
+            <span className="pointer-events-none rounded border border-gray-200 bg-white px-1.5 font-mono text-[9px] text-gray-400 dark:border-white/10 dark:bg-white/10 dark:text-gray-500">
               ⌘K
             </span>
           </button>
 
           <Link
-            href="#"
-            className="text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900"
-          >
-            Login
-          </Link>
-          <Link
-            href="#"
+            href="/admin/login"
             className="inline-flex items-center justify-center rounded-lg bg-[#1F2937] px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-gray-800 active:scale-[0.98]"
           >
-            Signup
+            Admin
           </Link>
         </div>
       </div>

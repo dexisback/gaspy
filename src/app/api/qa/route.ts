@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { guardAdminApi } from "@/lib/auth-guard";
 import { createEmbedding } from "@/lib/embeddings";
 import { createId } from "@paralleldrive/cuid2";
 
@@ -11,6 +12,9 @@ const qaSchema = z.object({
 });
 
 export async function GET() {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const qaPairs = await prisma.qAPair.findMany({
       orderBy: { createdAt: "desc" },
@@ -26,6 +30,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const body = await request.json();
     const parsed = qaSchema.safeParse(body);

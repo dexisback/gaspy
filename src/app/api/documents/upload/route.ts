@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createId } from "@paralleldrive/cuid2";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { guardAdminApi } from "@/lib/auth-guard";
 import { extractText } from "@/lib/parsers";
 import { chunkText } from "@/lib/chunker";
 import { createEmbedding } from "@/lib/embeddings";
@@ -16,6 +17,9 @@ const ALLOWED_TYPES = [
 ];
 
 export async function POST(request: Request) {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const limit = checkRateLimit("api-upload");
     if (!limit.allowed) {

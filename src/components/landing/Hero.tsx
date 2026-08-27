@@ -31,7 +31,7 @@ export function Hero() {
       {/* Heading */}
       <motion.h1
         variants={itemVariants}
-        className="max-w-4xl text-4xl font-bold leading-[1.1] tracking-tight text-gray-900 md:text-5xl lg:text-6xl"
+        className="max-w-4xl text-4xl font-bold leading-[1.1] tracking-tight text-gray-900 dark:text-gray-50 md:text-5xl lg:text-6xl"
         style={{ textWrap: "balance" }}
       >
         Manage Leads,{" "}
@@ -48,7 +48,7 @@ export function Hero() {
       {/* Subtext */}
       <motion.p
         variants={itemVariants}
-        className="mt-4 max-w-lg text-sm leading-relaxed text-gray-500 md:text-base"
+        className="mt-4 max-w-lg text-sm leading-relaxed text-gray-500 dark:text-gray-400 md:text-base"
         style={{ textWrap: "pretty" }}
       >
        Stop juggling spreadsheets. Manage prospects, deals, activities, and forecasts from a single CRM platform.

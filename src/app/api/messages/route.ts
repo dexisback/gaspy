@@ -1,8 +1,12 @@
 // history api
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { guardAdminApi } from "@/lib/auth-guard";
 
 export async function GET() {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const messages =
       await prisma.message.findMany({

@@ -137,14 +137,14 @@ function BlogContent() {
 
 export default function ChatPage() {
   return (
-    <div className="relative h-screen overflow-hidden bg-white">
+    <div className="relative h-screen overflow-hidden bg-white dark:bg-[#0c0b0a]">
       {/* Real blog content, blurred */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden blur-[2px]">
         <BlogContent />
       </div>
 
       {/* Soft overlay */}
-      <div className="absolute inset-0 bg-white/60" />
+      <div className="absolute inset-0 bg-white/60 dark:bg-[#0c0b0a]/70" />
 
       {/* Chat Panel */}
       <div className="relative z-10 flex h-full items-center justify-center px-4">

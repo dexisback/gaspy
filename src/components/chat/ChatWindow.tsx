@@ -109,7 +109,7 @@ export function ChatWindow() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-white dark:bg-[#1c1a18]">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         <div className="space-y-3">
@@ -126,7 +126,7 @@ export function ChatWindow() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="flex justify-start"
               >
-                <div className="rounded-2xl rounded-bl-md bg-[#F2F4F5] px-4 py-2">
+                <div className="rounded-2xl rounded-bl-md bg-[#F2F4F5] px-4 py-2 dark:bg-[#282522]">
                   <TypingIndicator />
                 </div>
               </motion.div>
@@ -139,7 +139,7 @@ export function ChatWindow() {
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-center"
             >
-              <div className="rounded-full bg-red-50 px-4 py-1.5 text-xs text-red-600">
+              <div className="rounded-full bg-red-50 px-4 py-1.5 text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
                 {error}
               </div>
             </motion.div>
@@ -149,12 +149,12 @@ export function ChatWindow() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-100 px-4 py-3">
+      <div className="border-t border-gray-100 px-4 py-3 dark:border-white/10">
         {isLoading && (
           <div className="mb-2 flex justify-center">
             <button
               onClick={handleStop}
-              className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98] cursor-pointer dark:border-white/10 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-100"
             >
               <svg
                 width="11"
@@ -169,7 +169,6 @@ export function ChatWindow() {
           </div>
         )}
         <ChatInput onSend={handleSend} />
-      </div>
-    </div>
+      </div>    </div>
   );
 }

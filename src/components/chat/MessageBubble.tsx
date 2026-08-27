@@ -26,8 +26,8 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
       <div
         className={`relative max-w-[82%] px-4 py-2.5 text-[13px] leading-relaxed ${
           isUser
-            ? "rounded-2xl rounded-br-md bg-[#171916] text-white"
-            : "rounded-2xl rounded-bl-md bg-[#F2F4F5] text-[#171916]"
+            ? "rounded-2xl rounded-br-md bg-[#171916] text-white dark:bg-[#C5F80A] dark:text-[#171717]"
+            : "rounded-2xl rounded-bl-md bg-[#F2F4F5] text-[#171916] dark:bg-[#282522] dark:text-[#f0efee]"
         }`}
       >
         <p className="whitespace-pre-wrap">{message.content}</p>

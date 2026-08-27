@@ -16,7 +16,7 @@ A dashboard at `/admin` provides:
 - **Analytics** — see top asked questions and hourly question volume over the last 12 hours.
 - **Dark mode toggle** — full theme support with distinct warm color tokens.
 
-> Admin access requires a secret key: `/admin?key=YOUR_SECRET`
+> Admin access requires signing in with a Google account that has the `admin` role (see [Authentication](#authentication) below).
 
 ---
 
@@ -119,10 +119,9 @@ src/
     chunker.ts               # Fixed-size text chunking
     admin-data.ts            # Dashboard data fetching
     utils.ts                 # formatHourLabel, formatBytes
-  types/index.ts             # Shared TypeScript interfaces
-  proxy.ts                   # Admin route protection middleware
+    types/index.ts             # Shared TypeScript interfaces
 prisma/
-  schema.prisma              # Document, Chunk, QAPair, QuestionLog, Message
+  schema.prisma              # Document, Chunk, QAPair, QuestionLog, Message, User, Session, Account, Verification
 ```
 
 ---
@@ -135,16 +134,49 @@ npm install
 
 # 2. Set up environment variables
 cp .env.example .env
-# Fill in DATABASE_URL, GEMINI_API_KEY, ADMIN_SECRET
+# Fill in DATABASE_URL, GEMINI_API_KEY, BETTER_AUTH_SECRET,
+# GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET (see Environment Variables below)
 
-# 3. Push the Prisma schema to your database
-npx prisma migrate dev --name init
+# 3. Apply the Prisma migrations to your database
+npx prisma migrate deploy
 
 # 4. Run the dev server
 npm run dev
 ```
 
-The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin dashboard is at `/admin?key=YOUR_ADMIN_SECRET`.
+The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin dashboard is at `/admin` (sign in at `/admin/login`, then promote your account — see [Creating the first admin](#creating-the-first-admin)).
+
+---
+
+## Authentication
+
+The app has a clear public/protected split:
+
+**Public (no login required)**
+- `/` landing page and the chat widget
+- `POST /api/chat` — the RAG chatbot, protected by an in-memory rate limiter (60 requests/min, 1500 requests/day) enforced server-side before any processing
+- `/api/health`
+
+**Protected (Better Auth session + `admin` role, verified server-side)**
+- `/admin` — dashboard (unauthenticated users are redirected to `/admin/login`; signed-in users without the `admin` role see an access-denied screen)
+- `/api/documents`, `/api/documents/upload`, `/api/documents/[id]`
+- `/api/qa`, `/api/qa/[id]`
+- `/api/analytics`, `/api/messages`
+
+Auth is handled by [Better Auth](https://better-auth.com) with the Prisma adapter on the existing Neon PostgreSQL database. Sessions are stored in the `Session` table and referenced by an httpOnly, HMAC-signed cookie — no tokens or secrets in URLs. Sign-in uses Google OAuth. Every admin page and API route calls a shared server-side guard (`src/lib/auth-guard.ts`) that validates the session **and** checks `user.role === "admin"` — frontend hiding alone is never relied upon.
+
+### Creating the first admin
+
+Roles are **never** granted automatically at sign-up — every Google-authenticated user starts with the `user` role.
+
+1. Sign in once at `/admin/login` with your Google account (this creates your `User` row with role `user`).
+2. Promote your account:
+
+```bash
+npx tsx scripts/make-admin.ts your.email@gmail.com
+```
+
+3. Reload `/admin` — you now have full dashboard access. Re-run the script with any email to grant additional admins.
 
 ---
 
@@ -154,7 +186,12 @@ The app runs at `http://localhost:3000`. Chat widget is on the homepage; admin d
 |----------|---------|
 | `DATABASE_URL` | PostgreSQL connection string (Neon with pgvector) |
 | `GEMINI_API_KEY` | Google GenAI API key |
-| `ADMIN_SECRET` | Secret key to access the admin dashboard (**required**) |
+| `GROQ_API_KEY` / `GROQ_MODEL` | Groq fallback for chat responses (optional) |
+| `BETTER_AUTH_SECRET` | Better Auth session/cookie signing secret — generate with `openssl rand -base64 32` (**required**) |
+| `BETTER_AUTH_URL` | Base URL of the app, e.g. `http://localhost:3000` (recommended in production) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials for admin sign-in (**required**) |
+
+All secrets are server-side only — none are exposed to the browser. `.env` is gitignored; never commit real credentials.
 
 ## Cost & Free Tier
 
@@ -183,7 +220,7 @@ Document uploads batch all chunk embeddings with `Promise.all` instead of sequen
 Dashboard data is fetched inside async server components using `cache()` so multiple panels sharing the same dataset don't duplicate DB queries.
 
 **Admin protection**
-A middleware (`proxy.ts`) gates `/admin` and admin API routes. Access requires a secret key passed as a query param (`?key=...`) which sets an httpOnly cookie for subsequent requests. The secret is read from the `ADMIN_SECRET` environment variable — no hardcoded defaults.
+Authentication uses Better Auth with the Prisma adapter (User/Session/Account/Verification tables on the existing Neon database). `/admin` and every admin API route perform a server-side session + `admin` role check (`src/lib/auth-guard.ts`); unauthenticated callers get a redirect/401 and authenticated non-admins get an access-denied screen/403. The public chatbot and `POST /api/chat` remain open — the in-memory rate limiter (60/min, 1500/day, enforced before any processing) protects the GenAI free-tier quota.
 
 ---
 

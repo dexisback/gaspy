@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
@@ -21,12 +21,14 @@ interface CommandSearchModalProps {
   setOpen: (open: boolean) => void;
 }
 
+type IconComponent = ComponentType<{ size?: number; className?: string }>;
+
 interface SearchItem {
   id: string;
   title: string;
   subtitle?: string;
   category: "Navigation" | "Documents" | "Q&A" | "Actions";
-  icon: any;
+  icon: IconComponent;
   action: () => void;
 }
 
@@ -35,11 +37,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
   const [search, setSearch] = useState("");
   const [documents, setDocuments] = useState<Document[]>([]);
   const [qaPairs, setQaPairs] = useState<QAPair[]>([]);
-
-  let themeCtx: any = null;
-  try {
-    themeCtx = useTheme();
-  } catch (e) {}
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (open) {
@@ -130,20 +128,19 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
     },
   }));
 
-  const actionItems: SearchItem[] = [];
-  if (themeCtx) {
-    actionItems.push({
+  const actionItems: SearchItem[] = [
+    {
       id: "toggle-theme",
-      title: themeCtx.theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode",
-      subtitle: "Change application dashboard appearance theme",
+      title: theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode",
+      subtitle: "Toggle light / dark appearance across the app",
       category: "Actions",
-      icon: themeCtx.theme === "dark" ? SunIcon : MoonIcon,
+      icon: theme === "dark" ? SunIcon : MoonIcon,
       action: () => {
-        themeCtx.toggleTheme();
-        setOpen(false);
+        toggleTheme();
+        // Keep the modal open so the theme change is visible immediately.
       },
-    });
-  }
+    },
+  ];
 
   const allItems = [...staticItems, ...dynamicDocItems, ...dynamicQaItems, ...actionItems];
 

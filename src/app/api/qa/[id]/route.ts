@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { guardAdminApi } from "@/lib/auth-guard";
 import { createEmbedding } from "@/lib/embeddings";
 
 const qaUpdateSchema = z.object({
@@ -13,6 +14,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -70,6 +74,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await guardAdminApi();
+  if (guard.error) return guard.error;
+
   try {
     const { id } = await params;
     await prisma.qAPair.delete({ where: { id } });

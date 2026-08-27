@@ -32,13 +32,13 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
           placeholder="Ask Gaspy..."
           rows={1}
           disabled={disabled}
-          className="w-full resize-none rounded-full border border-gray-200 bg-white px-4 py-2.5 text-[13px] text-[#171916] placeholder-gray-400 transition-colors duration-150 focus:border-gray-400 focus:outline-none disabled:opacity-50"
+          className="w-full resize-none rounded-full border border-gray-200 bg-white px-4 py-2.5 text-[13px] text-[#171916] placeholder-gray-400 transition-colors duration-150 focus:border-gray-400 focus:outline-none disabled:opacity-50 dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#f0efee] dark:placeholder-gray-500 dark:focus:border-white/30"
         />
       </div>
       <button
         type="submit"
         disabled={disabled || !input.trim()}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#171916] text-white transition-all duration-150 hover:bg-gray-800 disabled:opacity-40 disabled:hover:bg-[#171916] active:scale-[0.94]"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#171916] text-white transition-all duration-150 hover:bg-gray-800 disabled:opacity-40 disabled:hover:bg-[#171916] active:scale-[0.94] dark:bg-[#C5F80A] dark:text-[#171717] dark:hover:bg-[#d4ff2e] dark:disabled:hover:bg-[#C5F80A]"
       >
         <svg
           width="16"
