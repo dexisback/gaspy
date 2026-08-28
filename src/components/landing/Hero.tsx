@@ -27,8 +27,11 @@ function PipelineHighlight() {
     <span className="relative inline-block whitespace-nowrap">
       <span
         aria-hidden
-        className="absolute -inset-x-3 -inset-y-1.5 rounded-2xl border border-[#C5F80A]/25 bg-[#C5F80A]/[0.12] shadow-[0_0_0_1px_rgba(197,248,10,0.05),0_10px_32px_-8px_rgba(197,248,10,0.20),inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-[#C5F80A]/20 dark:bg-[#C5F80A]/[0.10]"
-      />
+        className="absolute -inset-x-3 -inset-y-1.5 overflow-hidden rounded-2xl border border-[#C5F80A]/25 shadow-[0_0_0_1px_rgba(197,248,10,0.05),0_10px_32px_-8px_rgba(197,248,10,0.20),inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-[#C5F80A]/20"
+      >
+        <span className="hero-reveal-fill absolute inset-0 bg-[#C5F80A]/[0.14] dark:bg-[#C5F80A]/[0.12]" />
+        <span className="hero-reveal-edge absolute inset-y-0 left-0 w-[18%]" />
+      </span>
       <span className="relative text-[#84cc16] dark:text-[#a6d911]">pipeline</span>
       <span
         aria-hidden
@@ -70,17 +73,64 @@ export function Hero() {
           style={{ textWrap: "balance" }}
         >
           Your sales <PipelineHighlight />,
-          <br className="hidden sm:block" /> without the busywork.
+          <br className="hidden sm:block" /> without the{" "}
+          <span className="relative inline-block">
+            busywork.
+            <svg
+              className="hero-sketch pointer-events-none absolute -bottom-2 left-[-3%] h-5 w-[106%]"
+              viewBox="0 0 320 40"
+              fill="none"
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              <path
+                d="M8 16C70 9 170 10 312 20"
+                stroke="#C5F80A"
+                strokeWidth="5"
+                strokeLinecap="round"
+                opacity="0.45"
+              />
+              <path
+                d="M34 31C110 37 210 31 296 34"
+                stroke="#C5F80A"
+                strokeWidth="4"
+                strokeLinecap="round"
+                opacity="0.35"
+              />
+            </svg>
+          </span>
         </motion.h1>
 
         {/* Subtext */}
         <motion.p
           variants={itemVariants}
-          className="mt-5 max-w-md text-sm leading-relaxed text-gray-500 dark:text-gray-400 md:text-base"
+          className="relative mt-5 max-w-md text-sm leading-relaxed text-gray-500 dark:text-gray-400 md:text-base"
           style={{ textWrap: "pretty" }}
         >
           Manage leads, deals, activities, and forecasts from one focused
           workspace.
+          <svg
+            className="hero-sketch-desc pointer-events-none absolute -bottom-2.5 left-[6%] h-4 w-[88%]"
+            viewBox="0 0 300 20"
+            fill="none"
+            preserveAspectRatio="none"
+            aria-hidden
+          >
+            <path
+              d="M6 9C60 4 170 5 294 10"
+              stroke="#C5F80A"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              opacity="0.4"
+            />
+            <path
+              d="M40 15C110 19 200 14 268 16"
+              stroke="#C5F80A"
+              strokeWidth="3"
+              strokeLinecap="round"
+              opacity="0.28"
+            />
+          </svg>
         </motion.p>
 
         {/* CTA */}
@@ -90,7 +140,7 @@ export function Hero() {
         >
           <Link
             href="/admin"
-            className="group inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.12),0_10px_28px_-6px_rgba(31,41,55,0.35)] transition-all duration-200 hover:-translate-y-px hover:bg-gray-800 hover:shadow-[0_2px_4px_rgba(0,0,0,0.12),0_14px_34px_-6px_rgba(31,41,55,0.45)] active:translate-y-0 active:scale-[0.98] dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
+            className="group inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_6px_16px_-6px_rgba(31,41,55,0.28)] transition-all duration-200 hover:-translate-y-px hover:bg-[#2a3547] hover:shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_22px_-6px_rgba(31,41,55,0.35)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_1px_2px_rgba(0,0,0,0.10)] dark:bg-[#C5F80A] dark:text-gray-900 dark:ring-black/10 dark:hover:bg-[#d4ff2e]"
           >
             Get Started
             <ArrowRight

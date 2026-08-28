@@ -69,6 +69,15 @@ function Sparkline({ className }: { className?: string }) {
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
       />
+      <path
+        className="hero-spark-sweep"
+        d="M2 18L12 15L22 16.5L32 10L42 12L52 5L62 6"
+        stroke="#a3ce0b"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -78,7 +87,7 @@ function NewLeadCard() {
     <div className={`w-44 p-3.5 text-left ${cardSurface}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#C5F80A]/20">
+          <span className="hero-status-pulse flex h-4 w-4 items-center justify-center rounded-full bg-[#C5F80A]/20">
             <User className="h-2.5 w-2.5 text-[#7da504]" strokeWidth={2.5} />
           </span>
           <span className={labelClass}>New Lead</span>
@@ -142,6 +151,14 @@ function PipelineValueCard() {
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
         />
+        <path
+          className="hero-chart-sweep"
+          d="M2 33C18 31 26 24 42 26s26 7 44-4 34-14 72-12"
+          stroke="#a3ce0b"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
       </svg>
     </div>
   );
@@ -168,10 +185,10 @@ function TasksCompletedCard() {
           {[26, 42, 34, 58, 70, 88].map((h, i) => (
             <div
               key={i}
-              className={`w-[5px] rounded-[2px] ${
+              className={`hero-bar-pulse w-[5px] rounded-[2px] ${
                 i >= 4 ? "bg-[#C5F80A]" : "bg-gray-200 dark:bg-white/10"
               }`}
-              style={{ height: `${h}%` }}
+              style={{ height: `${h}%`, animationDelay: `${1.8 + i * 0.35}s` }}
             />
           ))}
         </div>
@@ -181,11 +198,6 @@ function TasksCompletedCard() {
 }
 
 function Connectors() {
-  const dots: Array<[number, number]> = [
-    [97, 302],
-    [1003, 302],
-    [67, 169],
-  ];
   return (
     <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
       <motion.svg
@@ -214,12 +226,6 @@ function Connectors() {
           strokeDasharray="1 7"
           strokeLinecap="round"
         />
-        {dots.map(([cx, cy]) => (
-          <g key={`${cx}-${cy}`}>
-            <circle cx={cx} cy={cy} r="5" stroke="#C5F80A" strokeOpacity="0.35" fill="none" />
-            <circle cx={cx} cy={cy} r="2.5" fill="#C5F80A" />
-          </g>
-        ))}
       </motion.svg>
     </div>
   );
@@ -233,7 +239,7 @@ export function HeroFloatingCards() {
         className="left-[2%] top-[2%] xl:left-[4%] xl:top-[4%]"
         duration="9s"
         delay="0s"
-        floatY="-7px"
+        floatY="-4px"
         rotate="0.5deg"
         entranceDelay={0.9}
       >
@@ -244,7 +250,7 @@ export function HeroFloatingCards() {
         className="right-[2%] top-[26%] xl:right-[4%]"
         duration="11s"
         delay="-3.5s"
-        floatY="-5px"
+        floatY="-3px"
         rotate="-0.5deg"
         entranceDelay={1.05}
       >
@@ -255,7 +261,7 @@ export function HeroFloatingCards() {
         className="bottom-[4%] left-[1.5%] xl:bottom-[6%] xl:left-[3.5%]"
         duration="10s"
         delay="-5s"
-        floatY="-8px"
+        floatY="-5px"
         rotate="0.4deg"
         entranceDelay={1.2}
       >
@@ -266,7 +272,7 @@ export function HeroFloatingCards() {
         className="bottom-[6%] right-[2%] xl:right-[3.5%]"
         duration="8.5s"
         delay="-2s"
-        floatY="-6px"
+        floatY="-4px"
         rotate="-0.4deg"
         entranceDelay={1.35}
       >
