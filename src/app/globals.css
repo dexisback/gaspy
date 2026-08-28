@@ -88,6 +88,31 @@
   100% { transform: translateX(100%); }
 }
 
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--float-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(var(--float-y, -6px)) rotate(var(--float-rotate, 0deg));
+  }
+}
+
+.hero-float {
+  animation: hero-float var(--float-duration, 8s) ease-in-out var(--float-delay, 0s) infinite;
+  will-change: transform;
+}
+
+.hero-card:hover .hero-float {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float {
+    animation: none;
+  }
+}
+
 @layer utilities {
   .app-shimmer-block {
     position: relative;

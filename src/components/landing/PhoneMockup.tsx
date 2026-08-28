@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowUp, Bell, Handshake, Users } from "lucide-react";
 
 function DashboardMockup() {
   return (
@@ -8,55 +9,109 @@ function DashboardMockup() {
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-xs font-bold text-gray-900">Dashboard</h3>
-        <div className="h-5 w-5 rounded-full bg-[#C5F80A]" />
-      </div>
-
-      {/* Stats */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-white p-2.5 shadow-sm">
-          <p className="text-[9px] text-gray-500">Total Calls</p>
-          <p className="text-base font-bold text-gray-900">1,284</p>
-        </div>
-        <div className="rounded-xl bg-white p-2.5 shadow-sm">
-          <p className="text-[9px] text-gray-500">Scheduled</p>
-          <p className="text-base font-bold text-gray-900">892</p>
+        <div className="relative flex h-5 w-5 items-center justify-center">
+          <Bell className="h-3.5 w-3.5 text-gray-400" strokeWidth={2} />
+          <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-[#C5F80A]" />
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="mb-3 rounded-xl bg-white p-2.5 shadow-sm">
-        <p className="mb-1.5 text-[9px] font-medium text-gray-500">
+      {/* Pipeline overview */}
+      <div className="mb-2.5 rounded-2xl border border-black/[0.04] bg-white p-3 shadow-sm">
+        <p className="text-[9px] font-medium text-gray-400">Pipeline Overview</p>
+        <div className="mt-0.5 flex items-baseline gap-1.5">
+          <p className="text-lg font-bold tracking-tight text-gray-900">
+            $124.8K
+          </p>
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-[#84cc16]">
+            <ArrowUp className="h-2.5 w-2.5" strokeWidth={2.5} />
+            12.4%
+          </span>
+        </div>
+        <p className="text-[8px] text-gray-400">vs last month</p>
+        <svg
+          viewBox="0 0 160 32"
+          fill="none"
+          className="mt-1.5 h-7 w-full"
+          aria-hidden
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M2 26C16 24 24 18 38 20s26 6 42-3 32-11 78-9V32H2Z"
+            fill="#C5F80A"
+            opacity="0.1"
+          />
+          <path
+            d="M2 26C16 24 24 18 38 20s26 6 42-3 32-11 78-9"
+            stroke="#C5F80A"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+
+      {/* Leads / Deals */}
+      <div className="mb-2.5 grid grid-cols-2 gap-2">
+        <div className="rounded-2xl border border-black/[0.04] bg-white p-2.5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-[9px] text-gray-400">Leads</p>
+            <Users className="h-3 w-3 text-gray-300" strokeWidth={2} />
+          </div>
+          <p className="mt-0.5 text-base font-bold text-gray-900">128</p>
+        </div>
+        <div className="rounded-2xl border border-black/[0.04] bg-white p-2.5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-[9px] text-gray-400">Deals</p>
+            <Handshake className="h-3 w-3 text-gray-300" strokeWidth={2} />
+          </div>
+          <p className="mt-0.5 text-base font-bold text-gray-900">42</p>
+        </div>
+      </div>
+
+      {/* Weekly activity */}
+      <div className="mb-2.5 rounded-2xl border border-black/[0.04] bg-white p-3 shadow-sm">
+        <p className="mb-1.5 text-[9px] font-medium text-gray-400">
           Weekly Activity
         </p>
         <div className="flex h-12 items-end gap-[3px]">
           {[35, 55, 40, 70, 50, 85, 65].map((h, i) => (
             <div
               key={i}
-              className="flex-1 rounded-t-sm bg-[#C5F80A]"
+              className={`flex-1 rounded-t-sm ${
+                i === 5 ? "bg-[#C5F80A]" : "bg-[#C5F80A]/25"
+              }`}
               style={{ height: `${h}%` }}
             />
           ))}
         </div>
       </div>
 
-      {/* List */}
+      {/* Recent activity */}
       <div className="flex-1 space-y-1.5">
-        <p className="text-[9px] font-medium text-gray-500">Recent</p>
+        <p className="text-[9px] font-medium text-gray-400">Recent</p>
         {[
-          { title: "Team Standup", time: "Today, 10:00 AM", color: "bg-blue-100" },
-          { title: "Client Review", time: "Today, 2:00 PM", color: "bg-orange-100" },
-          { title: "Design Sync", time: "Tomorrow, 11:00 AM", color: "bg-purple-100" },
+          { initial: "A", title: "Acme Corp.", meta: "New lead added", accent: true },
+          { initial: "N", title: "Northwind Traders", meta: "Deal won · $8,200", accent: false },
+          { initial: "B", title: "Beacon Labs", meta: "Follow-up call · 2:00 PM", accent: false },
         ].map((item) => (
           <div
             key={item.title}
-            className="flex items-center gap-2 rounded-lg bg-white p-2 shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-black/[0.04] bg-white p-2 shadow-sm"
           >
-            <div className={`h-5 w-5 rounded-full ${item.color}`} />
+            <div
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${
+                item.accent
+                  ? "bg-[#C5F80A]/20 text-[#7da504]"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              <span className="text-[9px] font-bold">{item.initial}</span>
+            </div>
             <div>
               <p className="text-[10px] font-medium text-gray-900">
                 {item.title}
               </p>
-              <p className="text-[9px] text-gray-400">{item.time}</p>
+              <p className="text-[9px] text-gray-400">{item.meta}</p>
             </div>
           </div>
         ))}
@@ -77,8 +132,8 @@ export function PhoneMockup({
     >
       <motion.div
         className="pointer-events-auto relative cursor-pointer"
-        initial={{ y: 390 }}
-        animate={{ y: 390 }}
+        initial={{ y: 340 }}
+        animate={{ y: 340 }}
         whileHover={{ y: 170 }}
         onMouseEnter={() => onHoverChange?.(true)}
         onMouseLeave={() => onHoverChange?.(false)}
