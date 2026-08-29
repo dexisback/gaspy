@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-guard";
-import { AccessDenied } from "@/components/admin/AccessDenied";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { TopBar } from "@/components/admin/TopBar";
 import { PanelSurface } from "@/components/admin/PanelSurface";
@@ -18,13 +17,10 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  // Server-side auth: unauthenticated → login, authenticated non-admin → denied
+  // Server-side auth: unauthenticated → login, any authenticated user → dashboard
   const session = await getSession();
   if (!session) {
     redirect("/admin/login");
-  }
-  if (session.user.role !== "admin") {
-    return <AccessDenied />;
   }
 
   return (

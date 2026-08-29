@@ -7,13 +7,13 @@ export async function getSession() {
 }
 
 /**
- * Server-side admin check. Returns the session when the caller is
- * authenticated AND has the "admin" role; otherwise returns null.
+ * Server-side admin check. Sign-up is currently open: every authenticated
+ * user has access. Rate limiting will be layered on later.
  * Never trust the client — always call this in admin pages and API routes.
  */
 export async function requireAdmin() {
   const session = await getSession();
-  if (!session || session.user.role !== "admin") {
+  if (!session) {
     return null;
   }
   return session;
@@ -21,19 +21,14 @@ export async function requireAdmin() {
 
 /**
  * Guard for admin API route handlers.
- * Returns `{ error: NextResponse }` (401 unauthenticated / 403 non-admin)
- * or `{ session }` when the caller is an admin.
+ * Returns `{ error: NextResponse }` (401 unauthenticated)
+ * or `{ session }` when the caller is authenticated.
  */
 export async function guardAdminApi() {
   const session = await getSession();
   if (!session) {
     return {
       error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
-    };
-  }
-  if (session.user.role !== "admin") {
-    return {
-      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
     };
   }
   return { session };
