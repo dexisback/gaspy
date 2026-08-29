@@ -1,96 +1,138 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { CSSProperties, ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import type { Dispatch, CSSProperties, ReactNode, SetStateAction } from "react";
 import { ArrowUp, Plus, User } from "lucide-react";
 
-type FloatCardProps = {
-  className?: string;
-  duration: string;
-  delay: string;
-  floatY: string;
-  rotate: string;
-  entranceDelay: number;
-  children: ReactNode;
+type CardId = "lead" | "pipeline" | "deal" | "tasks";
+
+const DESCRIPTIONS: Record<CardId, string> = {
+  lead: "New leads captured and added to your CRM.",
+  pipeline: "Total value of deals currently in your pipeline.",
+  deal: "Revenue generated from recently closed deals.",
+  tasks: "Tasks completed by your sales team this week.",
 };
 
-function FloatCard({
-  className = "",
+function TicketCard({
+  id,
+  className,
   duration,
   delay,
   floatY,
-  rotate,
   entranceDelay,
+  baseRotate,
+  focused,
+  setFocused,
   children,
-}: FloatCardProps) {
+}: {
+  id: CardId;
+  className: string;
+  duration: string;
+  delay: string;
+  floatY: string;
+  entranceDelay: number;
+  baseRotate: number;
+  focused: CardId | null;
+  setFocused: Dispatch<SetStateAction<CardId | null>>;
+  children: ReactNode;
+}) {
+  const reduced = useReducedMotion();
+  const isFocused = focused === id;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 14, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.7, ease: "easeOut", delay: entranceDelay }}
-      className={`hero-card pointer-events-auto absolute z-0 hidden lg:block ${className}`}
+      className={`hero-card pointer-events-auto absolute hidden lg:block ${
+        isFocused ? "z-50" : "z-0"
+      } ${className}`}
+      tabIndex={0}
+      role="group"
+      aria-label={DESCRIPTIONS[id]}
+      onMouseEnter={() => setFocused(id)}
+      onMouseLeave={() => setFocused((f) => (f === id ? null : f))}
+      onFocus={() => setFocused(id)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node))
+          setFocused((f) => (f === id ? null : f));
+      }}
+      onClick={() => setFocused(id)}
     >
       <div
-        className="hero-float"
+        className={`hero-float ${isFocused ? "hero-float-paused" : ""}`}
         style={
           {
             "--float-duration": duration,
             "--float-delay": delay,
             "--float-y": floatY,
-            "--float-rotate": rotate,
+            "--float-rotate": "0.3deg",
           } as CSSProperties
         }
       >
-        {children}
+        <motion.div
+          animate={
+            isFocused && !reduced
+              ? { scale: 1.05, y: -6, rotate: 0 }
+              : {
+                  scale: 1,
+                  y: 0,
+                  rotate: reduced ? 0 : baseRotate,
+                }
+          }
+          transition={{ duration: 0.25, ease: [0.2, 0.8, 0.3, 1] }}
+          className={isFocused ? "hero-focus" : undefined}
+        >
+          <div className="ticket-shadow">
+            <div className="ticket relative">
+              <div
+                aria-hidden
+                className="paper-grain pointer-events-none absolute inset-0 -z-10 rounded-[inherit] opacity-60"
+              />
+              {children}
+            </div>
+          </div>
+        </motion.div>
+
+        <AnimatePresence>
+          {isFocused && (
+            <motion.p
+              initial={{ opacity: 0, y: 6, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: 4, x: "-50%" }}
+              transition={{
+                duration: reduced ? 0 : 0.2,
+                delay: reduced ? 0 : 0.15,
+                ease: "easeOut",
+              }}
+              className="absolute left-1/2 top-[calc(100%+10px)] z-50 w-max max-w-[240px] rounded-lg border border-black/[0.06] bg-white/95 px-3 py-1.5 text-center text-[11px] font-medium leading-snug text-gray-500 shadow-[0_4px_16px_rgba(0,0,0,0.08)] dark:border-white/10 dark:bg-[#1c1a18]/95 dark:text-gray-400"
+            >
+              {DESCRIPTIONS[id]}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
 }
 
-const cardSurface =
-  "rounded-xl border border-black/[0.06] bg-white/90 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_30px_-8px_rgba(0,0,0,0.10)] backdrop-blur-[2px] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-black/[0.10] hover:shadow-[0_2px_4px_rgba(0,0,0,0.04),0_18px_44px_-10px_rgba(0,0,0,0.16)] dark:border-white/10 dark:bg-[#1c1a18]/90";
-
-const labelClass = "text-[10px] font-medium text-gray-400 dark:text-gray-500";
-
-function Sparkline({ className }: { className?: string }) {
+function NewLeadCard({ isFocused }: { isFocused: boolean }) {
   return (
-    <svg
-      viewBox="0 0 64 24"
-      fill="none"
-      className={className}
-      aria-hidden
-      preserveAspectRatio="none"
-    >
-      <path
-        d="M2 18L12 15L22 16.5L32 10L42 12L52 5L62 6"
-        stroke="#C5F80A"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-      <path
-        className="hero-spark-sweep"
-        d="M2 18L12 15L22 16.5L32 10L42 12L52 5L62 6"
-        stroke="#a3ce0b"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-}
-
-function NewLeadCard() {
-  return (
-    <div className={`w-44 p-3.5 text-left ${cardSurface}`}>
+    <div className="w-44 p-3.5 text-left">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="hero-status-pulse flex h-4 w-4 items-center justify-center rounded-full bg-[#C5F80A]/20">
-            <User className="h-2.5 w-2.5 text-[#7da504]" strokeWidth={2.5} />
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#C5F80A]/20">
+            <User
+              className={`h-2.5 w-2.5 text-[#7da504] dark:text-[#a6d911] ${
+                isFocused ? "ticket-pulse" : ""
+              }`}
+              strokeWidth={2.5}
+            />
           </span>
-          <span className={labelClass}>New Lead</span>
+          <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+            New Lead
+          </span>
         </div>
         <span className="flex h-5 w-5 items-center justify-center rounded-md border border-black/[0.06] bg-white text-gray-400 shadow-sm dark:border-white/10 dark:bg-white/5">
           <Plus className="h-3 w-3" strokeWidth={2.5} />
@@ -99,29 +141,64 @@ function NewLeadCard() {
       <p className="mt-2 text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-50">
         Acme Corp.
       </p>
-      <p className={labelClass}>Software · 50+ employees</p>
+      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+        Software · 50+ employees
+      </p>
     </div>
   );
 }
 
-function DealWonCard() {
+function DealWonCard({ isFocused }: { isFocused: boolean }) {
   return (
-    <div className={`w-44 p-3.5 text-left ${cardSurface}`}>
-      <p className={labelClass}>Deal Won</p>
+    <div className="w-44 p-3.5 text-left">
+      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+        Deal Won
+      </p>
       <div className="mt-1 flex items-end justify-between gap-2">
         <p className="text-lg font-bold tracking-tight text-gray-900 font-tabular dark:text-gray-50">
           $24,800
         </p>
-        <Sparkline className="h-6 w-16 shrink-0 opacity-90" />
+        <svg
+          viewBox="0 0 64 24"
+          fill="none"
+          className="h-6 w-16 shrink-0"
+          aria-hidden
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M2 18L12 15L22 16.5L32 10L42 12L52 5L62 6"
+            stroke="#C5F80A"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            opacity={isFocused ? 0.25 : 0.9}
+          />
+          {isFocused && (
+            <path
+              key="deal-draw"
+              className="ticket-draw"
+              d="M2 18L12 15L22 16.5L32 10L42 12L52 5L62 6"
+              pathLength={1}
+              stroke="#a3ce0b"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+        </svg>
       </div>
     </div>
   );
 }
 
-function PipelineValueCard() {
+function PipelineValueCard({ isFocused }: { isFocused: boolean }) {
   return (
-    <div className={`w-48 p-3.5 text-left ${cardSurface}`}>
-      <p className={labelClass}>Pipeline Value</p>
+    <div className="w-48 p-3.5 text-left">
+      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+        Pipeline Value
+      </p>
       <div className="mt-1 flex items-baseline gap-2">
         <p className="text-lg font-bold tracking-tight text-gray-900 font-tabular dark:text-gray-50">
           $124.8K
@@ -131,7 +208,9 @@ function PipelineValueCard() {
           12.4%
         </span>
       </div>
-      <p className={labelClass}>vs last month</p>
+      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+        vs last month
+      </p>
       <svg
         viewBox="0 0 160 40"
         fill="none"
@@ -142,7 +221,8 @@ function PipelineValueCard() {
         <path
           d="M2 33C18 31 26 24 42 26s26 7 44-4 34-14 72-12V40H2Z"
           fill="#C5F80A"
-          opacity="0.1"
+          className={isFocused ? "ticket-draw-area" : undefined}
+          opacity={isFocused ? undefined : 0.1}
         />
         <path
           d="M2 33C18 31 26 24 42 26s26 7 44-4 34-14 72-12"
@@ -150,24 +230,31 @@ function PipelineValueCard() {
           strokeWidth="1.5"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
+          opacity={isFocused ? 0.25 : 1}
         />
-        <path
-          className="hero-chart-sweep"
-          d="M2 33C18 31 26 24 42 26s26 7 44-4 34-14 72-12"
-          stroke="#a3ce0b"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
+        {isFocused && (
+          <path
+            key="pipeline-draw"
+            className="ticket-draw"
+            d="M2 33C18 31 26 24 42 26s26 7 44-4 34-14 72-12"
+            pathLength={1}
+            stroke="#a3ce0b"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </svg>
     </div>
   );
 }
 
-function TasksCompletedCard() {
+function TasksCompletedCard({ isFocused }: { isFocused: boolean }) {
   return (
-    <div className={`w-44 p-3.5 text-left ${cardSurface}`}>
-      <p className={labelClass}>Tasks Completed</p>
+    <div className="w-44 p-3.5 text-left">
+      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+        Tasks Completed
+      </p>
       <div className="mt-1 flex items-end justify-between gap-2">
         <div>
           <div className="flex items-baseline gap-1.5">
@@ -179,16 +266,21 @@ function TasksCompletedCard() {
               24%
             </span>
           </div>
-          <p className={labelClass}>vs last week</p>
+          <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+            vs last week
+          </p>
         </div>
         <div className="flex h-9 items-end gap-[3px]" aria-hidden>
           {[26, 42, 34, 58, 70, 88].map((h, i) => (
             <div
               key={i}
-              className={`hero-bar-pulse w-[5px] rounded-[2px] ${
+              className={`w-[5px] rounded-[2px] ${
                 i >= 4 ? "bg-[#C5F80A]" : "bg-gray-200 dark:bg-white/10"
-              }`}
-              style={{ height: `${h}%`, animationDelay: `${1.8 + i * 0.35}s` }}
+              } ${isFocused ? "ticket-bars" : ""}`}
+              style={{
+                height: `${h}%`,
+                animationDelay: isFocused ? `${0.35 + i * 0.07}s` : undefined,
+              }}
             />
           ))}
         </div>
@@ -232,52 +324,92 @@ function Connectors() {
 }
 
 export function HeroFloatingCards() {
+  const [focused, setFocused] = useState<CardId | null>(null);
+  const reduced = useReducedMotion();
+
+  // Touch: tapping anywhere outside the tickets clears focus.
+  useEffect(() => {
+    if (!focused) return;
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest?.(".hero-card")) setFocused(null);
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [focused]);
+
   return (
     <>
+      <AnimatePresence>
+        {focused && (
+          <motion.div
+            key="focus-dim"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduced ? 0 : 0.18 }}
+            aria-hidden
+            className="focus-dim pointer-events-none fixed inset-0 z-40"
+          />
+        )}
+      </AnimatePresence>
+
       <Connectors />
-      <FloatCard
+
+      <TicketCard
+        id="lead"
         className="left-[2%] top-[2%] xl:left-[4%] xl:top-[4%]"
         duration="9s"
         delay="0s"
         floatY="-4px"
-        rotate="0.5deg"
         entranceDelay={0.9}
+        baseRotate={-1}
+        focused={focused}
+        setFocused={setFocused}
       >
-        <NewLeadCard />
-      </FloatCard>
+        <NewLeadCard isFocused={focused === "lead"} />
+      </TicketCard>
 
-      <FloatCard
+      <TicketCard
+        id="deal"
         className="right-[2%] top-[26%] xl:right-[4%]"
         duration="11s"
         delay="-3.5s"
         floatY="-3px"
-        rotate="-0.5deg"
         entranceDelay={1.05}
+        baseRotate={1}
+        focused={focused}
+        setFocused={setFocused}
       >
-        <DealWonCard />
-      </FloatCard>
+        <DealWonCard isFocused={focused === "deal"} />
+      </TicketCard>
 
-      <FloatCard
+      <TicketCard
+        id="pipeline"
         className="bottom-[4%] left-[1.5%] xl:bottom-[6%] xl:left-[3.5%]"
         duration="10s"
         delay="-5s"
         floatY="-5px"
-        rotate="0.4deg"
         entranceDelay={1.2}
+        baseRotate={-1.5}
+        focused={focused}
+        setFocused={setFocused}
       >
-        <PipelineValueCard />
-      </FloatCard>
+        <PipelineValueCard isFocused={focused === "pipeline"} />
+      </TicketCard>
 
-      <FloatCard
+      <TicketCard
+        id="tasks"
         className="bottom-[6%] right-[2%] xl:right-[3.5%]"
         duration="8.5s"
         delay="-2s"
         floatY="-4px"
-        rotate="-0.4deg"
         entranceDelay={1.35}
+        baseRotate={1.5}
+        focused={focused}
+        setFocused={setFocused}
       >
-        <TasksCompletedCard />
-      </FloatCard>
+        <TasksCompletedCard isFocused={focused === "tasks"} />
+      </TicketCard>
     </>
   );
 }

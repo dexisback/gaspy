@@ -103,8 +103,94 @@
   will-change: transform;
 }
 
-.hero-card:hover .hero-float {
+.hero-float-paused {
   animation-play-state: paused;
+}
+
+/* ---- Paper ticket cards ---- */
+
+.ticket {
+  border-radius: 13px 17px 12px 16px / 16px 12px 17px 13px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-mask-image: radial-gradient(circle 8px at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, #000 7.5px);
+  -webkit-mask-composite: source-in;
+  mask-image: radial-gradient(circle 8px at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, #000 7.5px);
+  mask-composite: intersect;
+  transition: border-color 0.25s ease;
+}
+
+.dark .ticket {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(28, 26, 24, 0.96);
+}
+
+.hero-focus .ticket {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.dark .hero-focus .ticket {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.ticket-shadow {
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 10px 30px -8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.hero-focus .ticket-shadow {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 24px 48px -12px rgba(0, 0, 0, 0.18);
+  filter: brightness(1.015) saturate(1.04);
+}
+
+/* Page dim while a ticket is focused */
+.focus-dim {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.dark .focus-dim {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Internal data animations — run only while the ticket is focused */
+.ticket-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sketch-draw 0.9s cubic-bezier(0.3, 0, 0.25, 1) 0.3s forwards;
+}
+
+.ticket-draw-area {
+  opacity: 0;
+  animation: ticket-area-in 0.5s ease-out 0.95s forwards;
+}
+
+@keyframes ticket-area-in {
+  to {
+    opacity: 0.1;
+  }
+}
+
+.ticket-bars {
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: ticket-bar-rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes ticket-bar-rise {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.ticket-pulse {
+  animation: status-pulse 1.4s ease-in-out 0.35s 1;
 }
 
 @keyframes highlight-reveal {
@@ -178,26 +264,28 @@
 }
 
 .hero-sketch path,
-.hero-sketch-desc path {
+.hero-sketch-desc path,
+.hero-marker {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: sketch-draw 0.8s ease-out forwards;
+  animation: sketch-draw var(--draw-dur, 1s) cubic-bezier(0.3, 0, 0.25, 1)
+    var(--draw-delay, 1.3s) forwards;
 }
 
-.hero-sketch path {
-  animation-delay: 0.5s;
+.hero-marker {
+  will-change: stroke-dashoffset;
 }
 
-.hero-sketch path:last-child {
-  animation-delay: 0.95s;
+/* Subtle paper grain overlay for the hero background */
+.paper-grain {
+  background-image: var(--panel-texture-image);
+  background-size: 180px 180px;
+  background-position: 0 0;
+  opacity: 0.55;
 }
 
-.hero-sketch-desc path {
-  animation-delay: 0.85s;
-}
-
-.hero-sketch-desc path:last-child {
-  animation-delay: 1.15s;
+.dark .paper-grain {
+  opacity: 0.4;
 }
 
 @keyframes status-pulse {
@@ -210,77 +298,13 @@
   }
 }
 
-.hero-status-pulse {
-  animation: status-pulse 5s ease-in-out 1.2s infinite;
-}
-
-@keyframes spark-sweep {
-  0%,
-  58% {
-    stroke-dashoffset: 72;
-    opacity: 0;
-  }
-  63%,
-  88% {
-    opacity: 0.9;
-  }
-  96%,
-  100% {
-    stroke-dashoffset: -16;
-    opacity: 0;
-  }
-}
-
-.hero-spark-sweep {
-  stroke-dasharray: 10 62;
-  animation: spark-sweep 7.5s linear 2.4s infinite;
-}
-
-@keyframes chart-sweep {
-  0%,
-  55% {
-    stroke-dashoffset: 186;
-    opacity: 0;
-  }
-  62%,
-  86% {
-    opacity: 0.8;
-  }
-  95%,
-  100% {
-    stroke-dashoffset: -20;
-    opacity: 0;
-  }
-}
-
-.hero-chart-sweep {
-  stroke-dasharray: 16 170;
-  animation: chart-sweep 9s linear 4.1s infinite;
-}
-
-@keyframes bar-pulse {
-  0%,
-  6%,
-  14%,
-  100% {
-    opacity: 1;
-  }
-  10% {
-    opacity: 0.5;
-  }
-}
-
-.hero-bar-pulse {
-  animation: bar-pulse 6.5s ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .hero-float,
   .hero-reveal-edge,
-  .hero-status-pulse,
-  .hero-spark-sweep,
-  .hero-chart-sweep,
-  .hero-bar-pulse {
+  .ticket-draw,
+  .ticket-draw-area,
+  .ticket-bars,
+  .ticket-pulse {
     animation: none;
   }
 
@@ -290,10 +314,21 @@
     opacity: 1;
   }
 
-  .hero-sketch path,
-  .hero-sketch-desc path {
+  .hero-marker {
     animation: none;
     stroke-dashoffset: 0;
+  }
+
+  .ticket-draw {
+    stroke-dashoffset: 0;
+  }
+
+  .ticket-bars {
+    transform: scaleY(1);
+  }
+
+  .ticket-draw-area {
+    opacity: 0.1;
   }
 }
 

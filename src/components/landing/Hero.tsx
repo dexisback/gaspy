@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import type { CSSProperties, ReactNode } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { HeroFloatingCards } from "./HeroFloatingCards";
 
@@ -21,6 +22,76 @@ const itemVariants = {
     transition: { duration: 0.45, ease: "easeOut" as const },
   },
 };
+
+/**
+ * Hand-drawn marker stroke. The path is slightly oblique and organically
+ * imperfect; it draws itself left → right via stroke-dashoffset once.
+ */
+function MarkerStroke({
+  d,
+  viewBox,
+  className,
+  delay,
+  duration,
+  strokeWidth,
+  opacity,
+}: {
+  d: string;
+  viewBox: string;
+  className: string;
+  delay: number;
+  duration: number;
+  strokeWidth: number;
+  opacity: number;
+}) {
+  return (
+    <svg
+      viewBox={viewBox}
+      fill="none"
+      preserveAspectRatio="none"
+      aria-hidden
+      className={`pointer-events-none absolute ${className}`}
+    >
+      <path
+        d={d}
+        pathLength={1}
+        stroke="#C5F80A"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        opacity={opacity}
+        vectorEffect="non-scaling-stroke"
+        className="hero-marker"
+        style={
+          {
+            "--draw-delay": `${delay}s`,
+            "--draw-dur": `${duration}s`,
+          } as CSSProperties
+        }
+      />
+    </svg>
+  );
+}
+
+const MARKER_MAIN_D =
+  "M8 17C48 14.6 92 15.4 138 13.6C186 11.8 232 11 268 9.6C288 8.8 304 8.2 313 7.4";
+const MARKER_KEY_D = "M4 8.4C28 7 54 7.6 96 5.4";
+
+function Keyword({ children, delay }: { children: ReactNode; delay: number }) {
+  return (
+    <span className="relative inline-block">
+      {children}
+      <MarkerStroke
+        d={MARKER_KEY_D}
+        viewBox="0 0 100 12"
+        className="-bottom-1 left-[-4%] h-2 w-[108%]"
+        delay={delay}
+        duration={0.45}
+        strokeWidth={3.5}
+        opacity={0.42}
+      />
+    </span>
+  );
+}
 
 function PipelineHighlight() {
   return (
@@ -50,7 +121,7 @@ export function Hero() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center px-4 text-center"
+        className="pointer-events-none relative z-10 flex flex-col items-center px-4 text-center"
       >
         {/* Eyebrow */}
         <motion.div
@@ -69,35 +140,21 @@ export function Hero() {
         {/* Headline */}
         <motion.h1
           variants={itemVariants}
-          className="mt-6 max-w-3xl text-4xl font-bold leading-[1.08] tracking-[-0.03em] text-gray-900 dark:text-gray-50 sm:text-5xl xl:text-6xl"
-          style={{ textWrap: "balance" }}
+          className="mt-6 max-w-3xl text-[1.75rem] font-bold leading-[1.08] tracking-[-0.03em] text-gray-900 dark:text-gray-50 sm:text-5xl sm:[text-wrap:balance] xl:text-6xl"
         >
-          Your sales <PipelineHighlight />,
-          <br className="hidden sm:block" /> without the{" "}
-          <span className="relative inline-block">
-            busywork.
-            <svg
-              className="hero-sketch pointer-events-none absolute -bottom-2 left-[-3%] h-5 w-[106%]"
-              viewBox="0 0 320 40"
-              fill="none"
-              preserveAspectRatio="none"
-              aria-hidden
-            >
-              <path
-                d="M8 16C70 9 170 10 312 20"
-                stroke="#C5F80A"
-                strokeWidth="5"
-                strokeLinecap="round"
-                opacity="0.45"
-              />
-              <path
-                d="M34 31C110 37 210 31 296 34"
-                stroke="#C5F80A"
-                strokeWidth="4"
-                strokeLinecap="round"
-                opacity="0.35"
-              />
-            </svg>
+          Your sales <PipelineHighlight />
+          <br className="hidden sm:block" />{" "}
+          <span className="relative inline-block whitespace-nowrap">
+            without the busywork.
+            <MarkerStroke
+              d={MARKER_MAIN_D}
+              viewBox="0 0 320 24"
+              className="-bottom-2.5 left-[2%] h-3 w-[96%]"
+              delay={0.25}
+              duration={1.05}
+              strokeWidth={5}
+              opacity={0.55}
+            />
           </span>
         </motion.h1>
 
@@ -107,30 +164,11 @@ export function Hero() {
           className="relative mt-5 max-w-md text-sm leading-relaxed text-gray-500 dark:text-gray-400 md:text-base"
           style={{ textWrap: "pretty" }}
         >
-          Manage leads, deals, activities, and forecasts from one focused
-          workspace.
-          <svg
-            className="hero-sketch-desc pointer-events-none absolute -bottom-2.5 left-[6%] h-4 w-[88%]"
-            viewBox="0 0 300 20"
-            fill="none"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            <path
-              d="M6 9C60 4 170 5 294 10"
-              stroke="#C5F80A"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              opacity="0.4"
-            />
-            <path
-              d="M40 15C110 19 200 14 268 16"
-              stroke="#C5F80A"
-              strokeWidth="3"
-              strokeLinecap="round"
-              opacity="0.28"
-            />
-          </svg>
+          Manage <Keyword delay={1.4}>leads</Keyword>,{" "}
+          <Keyword delay={1.5}>deals</Keyword>,{" "}
+          <Keyword delay={1.6}>activities</Keyword>, and{" "}
+          <Keyword delay={1.7}>forecasts</Keyword> from one{" "}
+          <Keyword delay={1.8}>focused workspace</Keyword>.
         </motion.p>
 
         {/* CTA */}
@@ -140,7 +178,7 @@ export function Hero() {
         >
           <Link
             href="/admin"
-            className="group inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_6px_16px_-6px_rgba(31,41,55,0.28)] transition-all duration-200 hover:-translate-y-px hover:bg-[#2a3547] hover:shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_22px_-6px_rgba(31,41,55,0.35)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_1px_2px_rgba(0,0,0,0.10)] dark:bg-[#C5F80A] dark:text-gray-900 dark:ring-black/10 dark:hover:bg-[#d4ff2e]"
+            className="group pointer-events-auto inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_6px_16px_-6px_rgba(31,41,55,0.28)] transition-all duration-200 hover:-translate-y-px hover:bg-[#2a3547] hover:shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_22px_-6px_rgba(31,41,55,0.35)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_1px_2px_rgba(0,0,0,0.10)] dark:bg-[#C5F80A] dark:text-gray-900 dark:ring-black/10 dark:hover:bg-[#d4ff2e]"
           >
             Get Started
             <ArrowRight
@@ -151,7 +189,7 @@ export function Hero() {
 
           <Link
             href="#"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+            className="group pointer-events-auto inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           >
             <PlayCircle
               className="h-[18px] w-[18px] text-gray-400 transition-colors duration-150 group-hover:text-[#84cc16]"
