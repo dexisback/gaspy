@@ -14,7 +14,7 @@ const chatSchema = z.object({
   message: z.string().min(1).max(2000),
 });
 
-const GEMINI_MODEL = "gemini-flash-latest";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
 const GROQ_RETRIES = 3;
 const RETRY_BASE_DELAY_MS = 500;
 const RELEVANCE_THRESHOLD = 0.6;
@@ -30,6 +30,11 @@ async function* createAnswerStream(
     const stream = await gemini.models.generateContentStream({
       model: GEMINI_MODEL,
       contents: prompt,
+      config: {
+        // The 2.5 Flash family runs extended "thinking" by default, which adds
+        // significant latency. This is a short RAG answer — disable it.
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     });
     for await (const chunk of stream) {
       const text = chunk.text ?? "";

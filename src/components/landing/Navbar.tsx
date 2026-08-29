@@ -7,9 +7,9 @@ import { useSearch } from "@/components/ui/SearchProvider";
 
 const navLinks = [
   { label: "Home", href: "#" },
-  { label: "Product", href: "#" },
-  { label: "Pricing", href: "#" },
-  { label: "Blog", href: "#" },
+  { label: "Product", href: "/admin/login" },
+  { label: "Pricing", href: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+  { label: "Blog", href: "https://github.com/dexisback/gaspy/#readme" },
 ];
 
 interface NavbarProps {
@@ -40,15 +40,25 @@ export function Navbar({ shrink = false }: NavbarProps) {
 
         {/* Center Nav */}
         <nav className="col-start-2 hidden items-center gap-8 justify-self-center md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="relative text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.href.startsWith("http") ? (
+              <a
+                key={link.label}
+                href={link.href}
+                className="relative text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="relative text-sm font-medium text-gray-600 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
 
         {/* Auth Buttons */}

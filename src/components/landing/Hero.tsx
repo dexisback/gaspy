@@ -187,8 +187,8 @@ export function Hero() {
             />
           </Link>
 
-          <Link
-            href="#"
+          <a
+            href="https://github.com/dexisback/gaspy/#readme"
             className="group pointer-events-auto inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition-colors duration-150 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           >
             <PlayCircle
@@ -196,7 +196,7 @@ export function Hero() {
               strokeWidth={2}
             />
             See how it works
-          </Link>
+          </a>
         </motion.div>
       </motion.div>
     </section>

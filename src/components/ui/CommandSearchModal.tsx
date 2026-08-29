@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "cmdk";
@@ -38,10 +38,16 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [qaPairs, setQaPairs] = useState<QAPair[]>([]);
   const { theme, toggleTheme } = useTheme();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
-      setSearch("");
+      // cmdk does not autofocus its input — focus it manually once mounted,
+      // otherwise keystrokes land on <body> and nothing renders.
+      requestAnimationFrame(() => {
+        setSearch("");
+        inputRef.current?.focus();
+      });
       fetch("/api/documents")
         .then((res) => res.json())
         .then((data) => {
@@ -182,6 +188,7 @@ export function CommandSearchModal({ open, setOpen }: CommandSearchModalProps) {
               <div className="flex items-center border-b border-border/80 px-4 py-3.5">
                 <SearchIcon className="mr-3 shrink-0 text-muted-foreground/60" size={16} />
                 <Command.Input
+                  ref={inputRef}
                   value={search}
                   onValueChange={setSearch}
                   placeholder="Search pages, documents, Q&As..."
