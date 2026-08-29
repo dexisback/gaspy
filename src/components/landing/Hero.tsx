@@ -178,11 +178,11 @@ export function Hero() {
         >
           <Link
             href="/admin"
-            className="group pointer-events-auto inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_6px_16px_-6px_rgba(31,41,55,0.28)] transition-all duration-200 hover:-translate-y-px hover:bg-[#2a3547] hover:shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_22px_-6px_rgba(31,41,55,0.35)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_1px_2px_rgba(0,0,0,0.10)] dark:bg-[#C5F80A] dark:text-gray-900 dark:ring-black/10 dark:hover:bg-[#d4ff2e]"
+            className="group pointer-events-auto inline-flex items-center gap-2 rounded-xl bg-[#1F2937] px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.08),0_6px_16px_-6px_rgba(31,41,55,0.28)] transition-all duration-200 hover:-translate-y-px hover:bg-[#2a3547] hover:shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_22px_-6px_rgba(31,41,55,0.35)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_1px_2px_rgba(0,0,0,0.10)] dark:bg-[#23272f] dark:ring-white/10 dark:hover:bg-[#2b3038]"
           >
             Get Started
             <ArrowRight
-              className="h-4 w-4 text-[#C5F80A] transition-transform duration-200 group-hover:translate-x-0.5 dark:text-gray-900"
+              className="h-4 w-4 text-[#C5F80A] transition-transform duration-200 group-hover:translate-x-0.5"
               strokeWidth={2.5}
             />
           </Link>

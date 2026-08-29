@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { SunIcon } from "@/components/ui/sun";
 import { MoonIcon } from "@/components/ui/moon";
@@ -7,7 +8,7 @@ import { SettingsIcon } from "@/components/ui/settings";
 import { SearchIcon } from "@/components/ui/search";
 import { useTheme } from "./ThemeProvider";
 import { useSearch } from "@/components/ui/SearchProvider";
-import type { AdminUser } from "./Sidebar";
+import { AccountMenu, type AdminUser } from "./AccountMenu";
 
 export function TopBar({ user }: { user: AdminUser }) {
   const { theme, toggleTheme } = useTheme();
@@ -52,22 +53,17 @@ export function TopBar({ user }: { user: AdminUser }) {
         </motion.div>
       </motion.button>
 
-      <motion.button
-        whileTap={{ scale: 0.94 }}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground cursor-pointer"
+      <Link
+        href="/admin/settings"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
         title="Settings"
       >
         <SettingsIcon size={16} className="opacity-80" />
-      </motion.button>
+      </Link>
 
       <span className="mx-2 h-5 w-px bg-border/60" aria-hidden />
 
-      <div
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-[11px] font-bold text-[#5d7a02] dark:text-[#C5F80A]"
-        title={`${user.name} · ${user.email}`}
-      >
-        {(user.name?.[0] ?? user.email?.[0] ?? "A").toUpperCase()}
-      </div>
+      <AccountMenu user={user} variant="avatar" />
     </motion.header>
   );
 }

@@ -373,6 +373,41 @@
     text-wrap: balance;
   }
 
+  /* Subtle diagonal hatch for the admin canvas — barely-there paper lines */
+  .admin-texture {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.014) 0px,
+      rgba(0, 0, 0, 0.014) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+  }
+
+  .dark .admin-texture {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+  }
+
+  /* Editorial typography defaults */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  a,
+  p,
+  span,
+  li {
+    text-underline-offset: 3px;
+  }
+
   .text-pretty {
     text-wrap: pretty;
   }

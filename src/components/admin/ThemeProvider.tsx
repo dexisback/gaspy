@@ -17,8 +17,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/* Theme state lives in localStorage; components subscribe via
-   useSyncExternalStore so there is no setState-in-effect. */
+/* One theme for the whole app (landing + admin). Default is light —
+   dark is only ever used when the user explicitly picks it. */
+const STORAGE_KEY = "gaspy-theme";
 const listeners = new Set<() => void>();
 
 function subscribe(callback: () => void) {
@@ -31,11 +32,15 @@ function subscribe(callback: () => void) {
 }
 
 function getSnapshot(): Theme {
-  return (localStorage.getItem("admin-theme") as Theme) || "light";
+  return (localStorage.getItem(STORAGE_KEY) as Theme) || "light";
 }
 
 function getServerSnapshot(): Theme {
   return "light";
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -43,12 +48,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Keep the DOM class in sync — external system mutation, allowed in effects.
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
+    applyTheme(theme);
   }, [theme]);
 
   const setTheme = (t: Theme) => {
-    localStorage.setItem("admin-theme", t);
-    document.documentElement.classList.toggle("dark", t === "dark");
+    localStorage.setItem(STORAGE_KEY, t);
+    applyTheme(t);
     listeners.forEach((listener) => listener());
   };
 

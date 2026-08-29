@@ -11,7 +11,6 @@ import {
   FileText,
   MessageSquare,
   MoreVertical,
-  Sparkles,
   Trash2,
   TrendingUp,
 } from "lucide-react";
@@ -98,27 +97,20 @@ function RangeSelector({
 
 function KpiCard({
   label,
-  icon: Icon,
   value,
   meta,
   status,
 }: {
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
   value: React.ReactNode;
   meta: React.ReactNode;
   status: React.ReactNode;
 }) {
   return (
     <div className="group rounded-xl border border-border/60 bg-card p-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-all duration-200 hover:-translate-y-px hover:border-border hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
-      <div className="flex items-start justify-between">
-        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-          {label}
-        </p>
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/15 text-[#5d7a02] dark:text-[#C5F80A]">
-          <Icon size={14} />
-        </span>
-      </div>
+      <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
       <div className="mt-3">{value}</div>
       <p className="mt-1 text-[12px] text-muted-foreground">{meta}</p>
       <div className="mt-2.5 border-t border-border/40 pt-2 text-[11.5px] font-medium">
@@ -141,7 +133,6 @@ function Kpis({ kpis }: { kpis: AdminKpis }) {
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <KpiCard
         label="Questions"
-        icon={MessageSquare}
         value={
           <span className="text-[30px] font-bold leading-none tracking-tight text-foreground font-tabular">
             {questionsLast7d.toLocaleString()}
@@ -166,7 +157,6 @@ function Kpis({ kpis }: { kpis: AdminKpis }) {
       />
       <KpiCard
         label="Knowledge Sources"
-        icon={FileText}
         value={
           <span className="text-[30px] font-bold leading-none tracking-tight text-foreground font-tabular">
             {documents.toLocaleString()}
@@ -195,7 +185,6 @@ function Kpis({ kpis }: { kpis: AdminKpis }) {
       />
       <KpiCard
         label="Q&A Pairs"
-        icon={Sparkles}
         value={
           <span className="text-[30px] font-bold leading-none tracking-tight text-foreground font-tabular">
             {qaPairs.toLocaleString()}
@@ -214,7 +203,6 @@ function Kpis({ kpis }: { kpis: AdminKpis }) {
       />
       <KpiCard
         label="Top Question"
-        icon={TrendingUp}
         value={
           topQuestion ? (
             <span
@@ -495,7 +483,7 @@ export function OverviewBoard({
             </h3>
             <Link
               href="/admin/knowledge"
-              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#1F2937] px-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#2a3547] cursor-pointer dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#1F2937] px-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#2a3547] cursor-pointer"
             >
               Upload document
             </Link>

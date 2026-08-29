@@ -20,10 +20,13 @@ export default async function AdminDashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="relative flex min-h-screen bg-background text-foreground">
+      {/* Subtle hatch texture across the admin canvas */}
+      <div aria-hidden className="admin-texture pointer-events-none fixed inset-0 z-0" />
+
       <AdminSidebar user={user} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <TopBar user={user} />
         <AdminMobileNav />
         <main className="flex-1">{children}</main>

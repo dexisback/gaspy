@@ -141,7 +141,7 @@ export function QAManager({ initialData }: QAManagerProps) {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={openAdd}
-          className="ml-auto flex h-8 items-center gap-1.5 rounded-lg bg-[#1F2937] px-3 text-[12px] font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-all duration-150 hover:bg-[#2a3547] hover:shadow-[0_2px_6px_rgba(0,0,0,0.12)] cursor-pointer dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
+          className="ml-auto flex h-8 items-center gap-1.5 rounded-lg bg-[#1F2937] px-3 text-[12px] font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-all duration-150 hover:bg-[#2a3547] hover:shadow-[0_2px_6px_rgba(0,0,0,0.12)] cursor-pointer"
         >
           <PlusIcon size={13} />
           Add Q&A
@@ -344,7 +344,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     type="submit"
                     whileTap={{ scale: 0.96 }}
                     disabled={saving || !question.trim() || !answer.trim()}
-                    className="rounded-lg bg-[#1F2937] px-3.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#2a3547] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
+                    className="rounded-lg bg-[#1F2937] px-3.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#2a3547] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {saving
                       ? "Saving..."
