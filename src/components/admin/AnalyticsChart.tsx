@@ -14,7 +14,19 @@ interface AnalyticsChartProps {
   initialData?: TimelinePoint[];
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+interface TooltipPayloadItem {
+  value?: number | string;
+}
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}) {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-border/40 bg-[#1F2937] px-3 py-2 shadow-lg">
@@ -44,10 +56,10 @@ export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
   return (
     <div className="h-full w-full min-h-0 min-w-0">
       <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
-        <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: -4 }}>
+        <AreaChart data={data} margin={{ top: 8, right: 18, bottom: 4, left: -4 }}>
           <defs>
             <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#C5F80A" stopOpacity={0.18} />
+              <stop offset="0%" stopColor="#C5F80A" stopOpacity={0.16} />
               <stop offset="100%" stopColor="#C5F80A" stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -66,6 +78,7 @@ export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
           <YAxis
             axisLine={false}
             tickLine={false}
+            allowDecimals={false}
             tick={{
               fontSize: 10,
               fill: "var(--muted-foreground)",
@@ -83,10 +96,12 @@ export function AnalyticsChart({ initialData }: AnalyticsChartProps) {
             type="monotone"
             dataKey="count"
             stroke="#C5F80A"
-            strokeWidth={2}
+            strokeWidth={1.75}
             fill="url(#areaGreen)"
-            dot={{ r: 3, fill: "var(--foreground)", stroke: "var(--background)", strokeWidth: 2 }}
-            activeDot={{ r: 5, fill: "#C5F80A", stroke: "var(--background)", strokeWidth: 2 }}
+            dot={{ r: 2.5, fill: "var(--foreground)", stroke: "var(--card)", strokeWidth: 1.5 }}
+            activeDot={{ r: 4.5, fill: "#C5F80A", stroke: "var(--card)", strokeWidth: 2 }}
+            animationBegin={200}
+            animationDuration={900}
           />
         </AreaChart>
       </ResponsiveContainer>

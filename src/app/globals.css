@@ -22,50 +22,51 @@
 
 @layer base {
   :root {
-    --background: #ede4df;
-    --foreground: #1c1917;
-    --card: #f5ede8;
-    --card-foreground: #1c1917;
-    --muted: #e0d7d2;
-    --muted-foreground: #78716c;
+    /* Neutral cool-grey admin canvas — deliberately not warm/beige */
+    --background: #f4f4f5;
+    --foreground: #18181b;
+    --card: #ffffff;
+    --card-foreground: #18181b;
+    --muted: #ececee;
+    --muted-foreground: #71717a;
     --accent: #C5F80A;
     --accent-foreground: #171717;
     --border: rgba(0, 0, 0, 0.08);
     --ring: #C5F80A;
-    --popover: rgba(255, 250, 247, 0.98);
-    --popover-foreground: #1c1917;
+    --popover: rgba(255, 255, 255, 0.98);
+    --popover-foreground: #18181b;
 
-    /* Stronger panel texture */
-    --panel-texture-bg: #f5ede8;
-    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    /* Panel texture: whisper-subtle neutral grain */
+    --panel-texture-bg: #ffffff;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   }
 
   .dark {
-    --background: #0c0b0a;
-    --foreground: #f0efee;
-    --card: #1c1a18;
-    --card-foreground: #f0efee;
-    --muted: #282522;
-    --muted-foreground: #9c9894;
+    --background: #0b0b0c;
+    --foreground: #f4f4f5;
+    --card: #141416;
+    --card-foreground: #f4f4f5;
+    --muted: #202023;
+    --muted-foreground: #a1a1aa;
     --accent: #C5F80A;
     --accent-foreground: #171717;
-    --border: rgba(255, 255, 255, 0.10);
+    --border: rgba(255, 255, 255, 0.09);
     --ring: #C5F80A;
-    --popover: rgba(28, 26, 24, 0.98);
-    --popover-foreground: #f0efee;
+    --popover: rgba(22, 22, 24, 0.98);
+    --popover-foreground: #f4f4f5;
 
-    --panel-texture-bg: #1c1a18;
-    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+    --panel-texture-bg: #141416;
+    --panel-texture-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
   }
 
   /* Visible dual-layer dot grid on body */
   body {
     background-color: var(--background);
     background-image:
-      /* Dark dots — small, frequent */
-      radial-gradient(circle, rgba(0, 0, 0, 0.18) 1.2px, transparent 1.2px),
-      /* Warm tinted dots — larger, sparse, offset */
-      radial-gradient(circle, rgba(200, 160, 120, 0.32) 1.5px, transparent 1.5px);
+      /* Neutral dots — small, frequent */
+      radial-gradient(circle, rgba(0, 0, 0, 0.10) 1.2px, transparent 1.2px),
+      /* Larger, sparse, offset */
+      radial-gradient(circle, rgba(0, 0, 0, 0.05) 1.5px, transparent 1.5px);
     background-size: 20px 20px, 80px 80px;
     background-position: 0 0, 14px 24px;
     color: var(--foreground);
@@ -76,8 +77,8 @@
 
   .dark body {
     background-image:
-      radial-gradient(circle, rgba(255, 255, 255, 0.22) 1.2px, transparent 1.2px),
-      radial-gradient(circle, rgba(197, 248, 10, 0.35) 1.5px, transparent 1.5px);
+      radial-gradient(circle, rgba(255, 255, 255, 0.14) 1.2px, transparent 1.2px),
+      radial-gradient(circle, rgba(197, 248, 10, 0.18) 1.5px, transparent 1.5px);
     background-size: 20px 20px, 80px 80px;
     background-position: 0 0, 14px 24px;
   }

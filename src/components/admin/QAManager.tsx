@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QAPair } from "@/types";
 import { PlusIcon } from "@/components/ui/plus";
 import { XIcon } from "@/components/ui/x";
+import { SearchIcon } from "@/components/ui/search";
 import { AnimatedTrashIcon, AnimatedPencilIcon } from "./AnimatedIcons";
 
 interface QAManagerProps {
@@ -21,6 +22,17 @@ export function QAManager({ initialData }: QAManagerProps) {
   const [savingRowId, setSavingRowId] = useState<string | null>(null);
   const [slicedId, setSlicedId] = useState<string | null>(null);
   const [hoveredDeleteId, setHoveredDeleteId] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (!q) return qaPairs;
+    return qaPairs.filter(
+      (qa) =>
+        qa.question.toLowerCase().includes(q) ||
+        qa.answer.toLowerCase().includes(q)
+    );
+  }, [qaPairs, filter]);
 
   function openAdd() {
     setEditingId(null);
@@ -74,6 +86,7 @@ export function QAManager({ initialData }: QAManagerProps) {
           answer: answer.trim(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          usage: 0,
         };
         setQaPairs((prev) => [optimisticPair, ...prev]);
         closeModal();
@@ -114,22 +127,41 @@ export function QAManager({ initialData }: QAManagerProps) {
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between shrink-0">
-        <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Q&A Pairs
-        </h3>
+      {/* Toolbar */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-lg border border-border/50 bg-background/60 px-2.5 transition-colors focus-within:border-ring/50 sm:max-w-xs">
+          <SearchIcon size={12} className="shrink-0 opacity-50" />
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search Q&A..."
+            className="w-full bg-transparent text-[12px] text-foreground outline-none placeholder:text-muted-foreground/50"
+          />
+        </div>
         <motion.button
-          whileTap={{ scale: 0.96 }}
+          whileTap={{ scale: 0.97 }}
           onClick={openAdd}
-          className="app-btn-3d flex h-7 w-7 items-center justify-center rounded-[6px] bg-background text-foreground transition-colors hover:bg-muted/60 cursor-pointer"
-          title="Add Q&A Pair"
+          className="ml-auto flex h-8 items-center gap-1.5 rounded-lg bg-[#1F2937] px-3 text-[12px] font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-all duration-150 hover:bg-[#2a3547] hover:shadow-[0_2px_6px_rgba(0,0,0,0.12)] cursor-pointer dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
         >
-          <PlusIcon size={14} className="opacity-80" />
+          <PlusIcon size={13} />
+          Add Q&A
         </motion.button>
       </div>
 
-      {/* Content */}
+      {/* Column labels */}
+      {filtered.length > 0 && (
+        <div className="mb-1 flex items-center gap-3 border-b border-border/50 px-3 pb-1.5">
+          <span className="flex-1 font-mono text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted-foreground/70">
+            Question
+          </span>
+          <span className="hidden w-16 shrink-0 text-right font-mono text-[9.5px] font-bold uppercase tracking-[0.16em] text-muted-foreground/70 sm:block">
+            Usage
+          </span>
+          <span className="w-16 shrink-0" aria-hidden />
+        </div>
+      )}
+
+      {/* Rows */}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -137,14 +169,34 @@ export function QAManager({ initialData }: QAManagerProps) {
           hidden: {},
           visible: { transition: { staggerChildren: 0.03 } },
         }}
-        className="space-y-2"
+        className="divide-y divide-border/40"
       >
         {qaPairs.length === 0 && (
-          <p className="py-6 text-[13px] font-medium text-muted-foreground text-pretty text-center">
-            No Q&A pairs yet.
+          <div className="flex flex-col items-center gap-2 py-10 text-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+            <p className="text-[13px] font-semibold text-foreground">
+              No Q&A pairs yet
+            </p>
+            <p className="max-w-xs text-[12px] text-muted-foreground">
+              Add your first question and answer to give the chatbot custom
+              context.
+            </p>
+            <button
+              onClick={openAdd}
+              className="mt-1 text-[12px] font-semibold text-foreground underline decoration-accent decoration-2 underline-offset-4 cursor-pointer"
+            >
+              Add Q&A
+            </button>
+          </div>
+        )}
+
+        {qaPairs.length > 0 && filtered.length === 0 && (
+          <p className="py-8 text-center text-[12px] text-muted-foreground">
+            No matches for “{filter}”.
           </p>
         )}
-        {qaPairs.map((qa) => (
+
+        {filtered.map((qa) => (
           <motion.div
             key={qa.id}
             variants={{
@@ -152,40 +204,44 @@ export function QAManager({ initialData }: QAManagerProps) {
               visible: { opacity: 1, y: 0 },
             }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className={`relative flex min-h-[4.5rem] items-start gap-2 rounded-xl border border-border/40 bg-muted/30 px-3 py-3 ${
+            className={`group relative flex items-center gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-muted/40 ${
               savingRowId === qa.id ? "opacity-60 pointer-events-none" : ""
             }`}
           >
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <p className="text-[13px] font-semibold text-foreground truncate">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <p
+                className="truncate text-[13px] font-semibold text-foreground"
+                title={qa.question}
+              >
                 {qa.question}
               </p>
-              <p className="text-[11px] leading-relaxed text-muted-foreground line-clamp-2">
+              <p className="truncate text-[11.5px] text-muted-foreground" title={qa.answer}>
                 {qa.answer}
               </p>
             </div>
 
-            <div className="flex shrink-0 flex-col items-center gap-1 pr-1">
+            <span
+              className="hidden w-16 shrink-0 text-right font-mono text-[11px] font-semibold text-muted-foreground font-tabular sm:block"
+              title={`${qa.usage ?? 0} matching logged questions`}
+            >
+              {qa.usage ? `×${qa.usage}` : "—"}
+            </span>
+
+            <div className="flex w-16 shrink-0 items-center justify-end gap-0.5 opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
               <motion.button
                 type="button"
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.94 }}
                 onClick={() => openEdit(qa)}
                 disabled={savingRowId === qa.id}
-                className="group relative flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 cursor-pointer disabled:opacity-40"
-                aria-label="Edit"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted/70 hover:text-foreground cursor-pointer disabled:opacity-40"
+                aria-label={`Edit ${qa.question}`}
               >
                 <AnimatedPencilIcon />
-                <motion.span
-                  className="pointer-events-none absolute -bottom-0.5 left-1/2 h-[1.5px] w-3 -translate-x-1/2 rounded-full bg-current opacity-0"
-                  initial={false}
-                  whileHover={{ opacity: 0.55, scaleX: [0.2, 1] }}
-                  transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-                />
               </motion.button>
 
               <motion.button
                 type="button"
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.94 }}
                 onHoverStart={() => setHoveredDeleteId(qa.id)}
                 onHoverEnd={() =>
                   setHoveredDeleteId((prev) =>
@@ -193,8 +249,8 @@ export function QAManager({ initialData }: QAManagerProps) {
                   )
                 }
                 onClick={() => void handleDelete(qa.id)}
-                className="relative flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 cursor-pointer"
-                aria-label="Delete"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted/70 hover:text-red-500 cursor-pointer"
+                aria-label={`Delete ${qa.question}`}
               >
                 <AnimatedTrashIcon open={hoveredDeleteId === qa.id} />
               </motion.button>
@@ -205,10 +261,10 @@ export function QAManager({ initialData }: QAManagerProps) {
               {slicedId === qa.id && (
                 <motion.span
                   initial={{ opacity: 0, x: -40 }}
-                  animate={{ opacity: 0.9, x: 150 }}
+                  animate={{ opacity: 0.9, x: 260 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.24, ease: [0, 0, 0.58, 1] }}
-                  className="absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white/5 via-white/70 to-white/5 dark:from-white/5 dark:via-white/30 dark:to-white/5"
+                  className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-transparent via-foreground/20 to-transparent"
                 />
               )}
             </AnimatePresence>
@@ -224,7 +280,7 @@ export function QAManager({ initialData }: QAManagerProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/25"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/25 p-4"
             style={{ backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
             onClick={closeModal}
           >
@@ -243,7 +299,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={closeModal}
-                  className="flex h-7 w-7 items-center justify-center rounded-[6px] text-muted-foreground hover:bg-muted/60 hover:text-foreground cursor-pointer"
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted/60 hover:text-foreground cursor-pointer"
                   aria-label="Close"
                 >
                   <XIcon size={14} className="opacity-80" />
@@ -259,7 +315,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="Enter question"
-                    className="w-full rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
+                    className="w-full rounded-lg border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/50 transition-colors"
                   />
                 </label>
                 <label className="block">
@@ -271,7 +327,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     onChange={(e) => setAnswer(e.target.value)}
                     rows={4}
                     placeholder="Enter answer"
-                    className="w-full resize-none rounded-md border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/40 transition-colors"
+                    className="w-full resize-none rounded-lg border border-border/70 bg-background px-3 py-2.5 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-ring/50 transition-colors"
                   />
                 </label>
                 <div className="flex justify-end gap-2 pt-1">
@@ -280,7 +336,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     whileTap={{ scale: 0.96 }}
                     onClick={closeModal}
                     disabled={saving}
-                    className="rounded-[6px] border border-border/70 bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground hover:bg-muted/40 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg border border-border/70 bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground hover:bg-muted/40 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Cancel
                   </motion.button>
@@ -288,7 +344,7 @@ export function QAManager({ initialData }: QAManagerProps) {
                     type="submit"
                     whileTap={{ scale: 0.96 }}
                     disabled={saving || !question.trim() || !answer.trim()}
-                    className="app-btn-3d rounded-[6px] bg-[#1F2937] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-[#1F2937]/85 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg bg-[#1F2937] px-3.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#2a3547] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C5F80A] dark:text-gray-900 dark:hover:bg-[#d4ff2e]"
                   >
                     {saving
                       ? "Saving..."

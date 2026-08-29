@@ -4,6 +4,7 @@ export interface Document {
   type: string;
   size: number;
   createdAt: string;
+  chunks?: number;
 }
 
 export interface QAPair {
@@ -12,6 +13,7 @@ export interface QAPair {
   answer: string;
   createdAt: string;
   updatedAt: string;
+  usage?: number;
 }
 
 export interface AnalyticsItem {
@@ -24,7 +26,28 @@ export interface TimelinePoint {
   count: number;
 }
 
+export type AnalyticsRange = "12h" | "7d" | "30d";
+
 export interface AnalyticsResponse {
   topQuestions: AnalyticsItem[];
   timeline: TimelinePoint[];
+}
+
+export interface ActivityItem {
+  kind: "question" | "document" | "qa";
+  title: string;
+  detail: string;
+  at: string;
+}
+
+export interface AdminKpis {
+  questionsTotal: number;
+  questionsToday: number;
+  questionsLast7d: number;
+  questionsPrev7d: number;
+  qaPairs: number;
+  documents: number;
+  chunks: number;
+  docsPending: number;
+  topQuestion: AnalyticsItem | null;
 }

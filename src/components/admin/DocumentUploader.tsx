@@ -54,23 +54,19 @@ export function DocumentUploader({ onUploaded, dragOver = false }: DocumentUploa
         animate={
           dragOver
             ? {
-                rotate: [0, -1.5, 1.5, -1, 1, 0],
-                scale: 1.02,
-                borderColor: "rgba(197, 248, 10, 0.6)",
+                scale: 1.01,
+                borderColor: "rgba(197, 248, 10, 0.7)",
+                backgroundColor: "rgba(197, 248, 10, 0.06)",
               }
-            : { rotate: 0, scale: 1, borderColor: "rgba(0, 0, 0, 0.06)" }
-        }
-        transition={
-          dragOver
-            ? {
-                rotate: { repeat: Infinity, duration: 0.4, ease: "easeInOut" },
-                scale: { duration: 0.2 },
-                borderColor: { duration: 0.2 },
+            : {
+                scale: 1,
+                borderColor: "rgba(0, 0, 0, 0.08)",
+                backgroundColor: "rgba(0, 0, 0, 0)",
               }
-            : { duration: 0.2 }
         }
+        transition={{ duration: 0.2 }}
         onClick={() => inputRef.current?.click()}
-        className="app-btn-3d flex w-full items-center justify-center gap-2 rounded-full border border-border/50 bg-background px-4 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground cursor-pointer"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-background/40 px-4 py-3 text-[12px] font-medium text-muted-foreground transition-colors hover:border-ring/40 hover:text-foreground cursor-pointer"
       >
         <input
           ref={inputRef}
@@ -80,8 +76,21 @@ export function DocumentUploader({ onUploaded, dragOver = false }: DocumentUploa
           onChange={handleFileChange}
         />
         <UploadIcon size={14} className="opacity-80" />
-        {uploading ? "Uploading..." : dragOver ? "Drop to upload" : "Upload document"}
+        {uploading
+          ? "Uploading & indexing…"
+          : dragOver
+          ? "Drop to upload"
+          : "Upload document"}
       </motion.button>
+      {uploading && (
+        <div
+          className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-muted"
+          role="progressbar"
+          aria-label="Uploading"
+        >
+          <div className="h-full w-1/3 animate-[shimmer-slide_1.2s_ease-in-out_infinite] rounded-full bg-accent/70" />
+        </div>
+      )}
       {error && <p className="mt-2 text-[11px] text-red-500">{error}</p>}
     </div>
   );

@@ -12,40 +12,52 @@ export function AnalyticsPanel({ initialData }: AnalyticsPanelProps) {
 
   if (data.length === 0) {
     return (
-      <p className="py-4 text-[13px] font-medium text-muted-foreground text-pretty">
-        No questions asked yet. Analytics will appear once users start chatting.
-      </p>
+      <div className="flex flex-col items-center gap-2 py-8 text-center">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+        <p className="text-[13px] font-semibold text-foreground">
+          No questions yet
+        </p>
+        <p className="max-w-[240px] text-[12px] text-muted-foreground">
+          Analytics will appear once users start chatting with the bot.
+        </p>
+      </div>
     );
   }
 
   return (
-    <motion.div
+    <motion.ol
       initial="hidden"
       animate="visible"
       variants={{
         hidden: {},
         visible: { transition: { staggerChildren: 0.03 } },
       }}
-      className="space-y-0.5"
+      className="divide-y divide-border/40"
     >
-      {data.slice(0, 8).map((item, i) => (
-        <motion.div
+      {data.map((item, i) => (
+        <motion.li
           key={`${item.question}-${i}`}
           variants={{
             hidden: { opacity: 0, y: 5 },
             visible: { opacity: 1, y: 0 },
           }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="flex items-center justify-between rounded-lg px-2.5 py-2.5 hover:bg-muted/50 transition-colors"
+          className="group flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/40"
         >
-          <span className="text-[13px] font-medium text-foreground truncate pr-3">
+          <span className="w-6 shrink-0 font-mono text-[10.5px] font-semibold text-muted-foreground/60 font-tabular group-hover:text-foreground">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <span
+            className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground"
+            title={item.question}
+          >
             {item.question}
           </span>
-          <span className="shrink-0 inline-flex items-center rounded-full bg-muted px-2 py-0.5 font-mono text-[10.5px] font-bold text-foreground font-tabular">
+          <span className="shrink-0 font-mono text-[11px] font-semibold text-muted-foreground font-tabular group-hover:text-foreground">
             {item.count}
           </span>
-        </motion.div>
+        </motion.li>
       ))}
-    </motion.div>
+    </motion.ol>
   );
 }

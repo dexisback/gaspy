@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { DocumentUploader } from "./DocumentUploader";
 import { DocumentList } from "./DocumentList";
 import { Document } from "@/types";
@@ -23,6 +23,11 @@ export function DocumentsSection({ initialData }: { initialData: Document[] }) {
     }
   }, []);
 
+  const indexedCount = useMemo(
+    () => documents.filter((d) => (d.chunks ?? 0) > 0).length,
+    [documents]
+  );
+
   return (
     <div
       onDragOver={(e) => {
@@ -35,8 +40,14 @@ export function DocumentsSection({ initialData }: { initialData: Document[] }) {
         setDragOver(false);
       }}
     >
+      <p className="mb-4 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        {documents.length} {documents.length === 1 ? "source" : "sources"} ·{" "}
+        {indexedCount} indexed
+      </p>
+
       <DocumentUploader onUploaded={refresh} dragOver={dragOver} />
-      <div className="mt-4 overflow-y-auto max-h-[140px]">
+
+      <div className="mt-2">
         <DocumentList
           documents={documents}
           onDelete={refresh}

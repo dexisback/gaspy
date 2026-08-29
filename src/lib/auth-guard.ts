@@ -1,9 +1,11 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "./auth";
+import { withDbRetry } from "./db-retry";
 
 export async function getSession() {
-  return auth.api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  return withDbRetry(() => auth.api.getSession({ headers: requestHeaders }));
 }
 
 /**

@@ -1,6 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 
 type Theme = "light" | "dark";
 
@@ -12,22 +17,39 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
+/* Theme state lives in localStorage; components subscribe via
+   useSyncExternalStore so there is no setState-in-effect. */
+const listeners = new Set<() => void>();
 
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    listeners.delete(callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getSnapshot(): Theme {
+  return (localStorage.getItem("admin-theme") as Theme) || "light";
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Keep the DOM class in sync — external system mutation, allowed in effects.
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("admin-theme") as Theme | null;
-    const initial: Theme = saved || "light";
-    setThemeState(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   const setTheme = (t: Theme) => {
-    setThemeState(t);
     localStorage.setItem("admin-theme", t);
     document.documentElement.classList.toggle("dark", t === "dark");
+    listeners.forEach((listener) => listener());
   };
 
   const toggleTheme = () => {
