@@ -2,6 +2,16 @@ import PDFParser from "pdf2json";
 import mammoth from "mammoth";
 import * as xlsx from "xlsx";
 
+type PdfParserData = {
+  Pages?: Array<{
+    Texts?: Array<{
+      R?: Array<{
+        T?: string;
+      }>;
+    }>;
+  }>;
+};
+
 async function extractPdfText(buffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
     const pdfParser = new PDFParser();
@@ -11,7 +21,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
     });
 
     pdfParser.on("pdfParser_dataReady", () => {
-      const data = pdfParser.data as any;
+      const data = pdfParser.data as PdfParserData | undefined;
       let text = "";
 
       if (data && data.Pages) {

@@ -20,6 +20,7 @@ export async function* groqGenerateContentStream(
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [{ role: "user", content: prompt }],
+      reasoning_effort: "none",
       stream: true,
     }),
   });

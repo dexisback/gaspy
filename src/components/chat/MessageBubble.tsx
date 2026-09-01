@@ -8,8 +8,15 @@ interface MessageBubbleProps {
   index: number;
 }
 
+function formatAssistantText(content: string) {
+  return content
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*\*/g, "");
+}
+
 export function MessageBubble({ message, index }: MessageBubbleProps) {
   const isUser = message.role === "user";
+  const displayContent = isUser ? message.content : formatAssistantText(message.content);
 
   return (
     <motion.div
@@ -30,7 +37,7 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
             : "rounded-2xl rounded-bl-md bg-[#F2F4F5] text-[#171916] dark:bg-[#282522] dark:text-[#f0efee]"
         }`}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <p className="whitespace-pre-wrap">{displayContent}</p>
       </div>
     </motion.div>
   );
